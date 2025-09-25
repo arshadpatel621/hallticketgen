@@ -1,7 +1,12 @@
 // Hall Ticket Generator - Main JavaScript
 
-// Application state
+// Application state variables (must be declared before functions that use them)
+let currentStudentType = ''; // 'engineering', 'general', or 'school'
 let currentBranch = '';
+let currentCourse = ''; // For general students
+let customCourseData = null; // For customized course details
+let currentSchoolLevel = ''; // For school students
+let currentClass = ''; // For school students
 let currentYear = '';
 let studentData = [];
 let classInformation = {};
@@ -61,12 +66,30 @@ const academicYears = [
   { id: '4', name: '4th Year', semesters: ['7th Semester', '8th Semester'] }
 ];
 
-// Show/hide sections with navigation tracking
+// Variable to track delete mode state
+let isDeleteMode = false;
+
+// Essential functions that must be available immediately for HTML onclick handlers
+
+// Global function to show sections
 function showSection(sectionId, skipHistory = false) {
+  console.log('Showing section:', sectionId);
+  
+  // Hide all sections
+  document.querySelectorAll('.section').forEach(section => {
+    section.classList.add('hidden');
+  });
+  
+  // Show the requested section
+  const targetSection = document.getElementById(sectionId);
+  if (targetSection) {
+    targetSection.classList.remove('hidden');
+    targetSection.classList.add('animate-fadeIn');
+  }
+  
   // Update navigation history
   if (!skipHistory) {
     if (currentSection !== sectionId) {
-      // If we're navigating to a new section, add it to history
       if (navigationHistory[navigationHistory.length - 1] !== sectionId) {
         navigationHistory.push(sectionId);
       }
@@ -75,63 +98,99 @@ function showSection(sectionId, skipHistory = false) {
   
   currentSection = sectionId;
   
-  // Update UI
-  document.querySelectorAll('.section').forEach(section => {
-    section.classList.add('hidden');
-  });
-  document.getElementById(sectionId).classList.remove('hidden');
-  document.getElementById(sectionId).classList.add('animate-fadeIn');
-  
   // Update back button visibility
   updateBackButtonVisibility();
   
-  // Move UI chrome for a focused generation experience
-  try {
-    const nav = document.querySelector('nav');
-    const footer = document.querySelector('footer');
-    if (sectionId === 'finalGeneration') {
-      // hide top navigation to reduce clutter
-      if (nav) nav.classList.add('hidden');
-      // move footer inside the final generation panel for context
-      const fg = document.getElementById('finalGeneration');
-      if (fg && footer && footer.parentElement !== fg) {
-        fg.appendChild(footer);
-        footer.classList.add('mt-6');
-      }
-    } else {
-      // restore navigation and footer position
-      if (nav) nav.classList.remove('hidden');
-      if (footer && footer.parentElement !== document.body) {
-        document.body.appendChild(footer);
-        footer.classList.remove('mt-6');
-      }
-    }
-  } catch (e) {
-    console.warn('UI chrome adjustment failed:', e);
-  }
-
+  // Special handling for specific sections
   if (sectionId === 'engineering') {
     populateEngineeringCards();
+  } else if (sectionId === 'generator') {
+    initializeHallTicketPreview();
   }
 }
 
-// Back button functionality
-function goBack() {
-  if (navigationHistory.length > 1) {
-    // Remove current section from history
-    navigationHistory.pop();
-    // Get previous section
-    const previousSection = navigationHistory[navigationHistory.length - 1];
-    // Navigate to previous section without adding to history
-    showSection(previousSection, true);
-  } else {
-    // Default to home if history is empty
-    showSection('home', true);
-    navigationHistory = ['home'];
+// Global function to select student type
+function selectStudentType(type) {
+  console.log('Selected student type:', type);
+  currentStudentType = type;
+  
+  if (type === 'engineering') {
+    showSection('engineering');
+  } else if (type === 'general') {
+    showSection('general');
+  } else if (type === 'school') {
+    setupSchoolStudentForm();
+    showSection('classCustomization');
   }
 }
 
-// Update back button visibility
+// Global function to toggle mobile menu
+function toggleMobileMenu() {
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  
+  if (mobileMenu && menuBtn) {
+    const icon = menuBtn.querySelector('i');
+    
+    if (mobileMenu.classList.contains('hidden')) {
+      mobileMenu.classList.remove('hidden');
+      mobileMenu.classList.add('show');
+      if (icon) icon.className = 'fas fa-times text-xl';
+      document.body.style.overflow = 'hidden';
+    } else {
+      closeMobileMenu();
+    }
+  }
+}
+
+// Global function to close mobile menu
+function closeMobileMenu() {
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  
+  if (mobileMenu && menuBtn) {
+    const icon = menuBtn.querySelector('i');
+    
+    mobileMenu.classList.add('hidden');
+    mobileMenu.classList.remove('show');
+    if (icon) icon.className = 'fas fa-bars text-xl';
+    document.body.style.overflow = '';
+  }
+}
+
+// Global function to open learn more modal
+function openLearnMore() {
+  const modal = document.getElementById('learnMoreModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+// Global function to close learn more modal
+function closeLearnMore() {
+  const modal = document.getElementById('learnMoreModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+}
+
+// Make functions available globally
+window.showSection = showSection;
+window.selectStudentType = selectStudentType;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
+window.openLearnMore = openLearnMore;
+window.closeLearnMore = closeLearnMore;
+window.openBranchPopup = openBranchPopup;
+window.closeBranchPopup = closeBranchPopup;
+window.selectBranchFromPopup = selectBranchFromPopup;
+window.proceedToYearSelection = proceedToYearSelection;
+
+// Helper functions that the main functions depend on
 function updateBackButtonVisibility() {
   const backButton = document.getElementById('backButton');
   if (backButton) {
@@ -143,10 +202,50 @@ function updateBackButtonVisibility() {
   }
 }
 
-// Open branch selection popup
+function populateEngineeringCards() {
+  // This function will be called when engineering section is shown
+  // The full implementation exists later in the file
+  if (typeof openBranchPopup === 'function') {
+    openBranchPopup();
+  }
+}
+
+function initializeHallTicketPreview() {
+  // Initialize hall ticket preview when generator section is shown
+  if (typeof updatePreview === 'function') {
+    updatePreview();
+  }
+}
+
+function setupSchoolStudentForm() {
+  // Setup school student form - implementation exists later in file
+  console.log('Setting up school student form');
+}
+
+// Add back navigation function
+function goBack() {
+  if (navigationHistory.length > 1) {
+    navigationHistory.pop();
+    const previousSection = navigationHistory[navigationHistory.length - 1];
+    showSection(previousSection, true);
+  } else {
+    showSection('home', true);
+    navigationHistory = ['home'];
+  }
+}
+
+// Make the goBack function global too
+window.goBack = goBack;
+
+// Define openBranchPopup function globally early for HTML onclick handlers
 function openBranchPopup() {
   const popup = document.getElementById('branchPopup');
   const searchInput = document.getElementById('branchSearch');
+  
+  if (!popup || !searchInput) {
+    console.error('Branch popup elements not found');
+    return;
+  }
   
   // Show popup
   popup.classList.remove('hidden');
@@ -155,19 +254,28 @@ function openBranchPopup() {
   searchInput.value = '';
   searchInput.focus();
   
-  // Populate branch grid
-  populateBranchGrid();
+  // Populate branch grid if available
+  if (typeof populateBranchGrid === 'function') {
+    populateBranchGrid();
+  }
   
   // Prevent body scrolling
   document.body.style.overflow = 'hidden';
   
   // Add escape key listener
-  document.addEventListener('keydown', handlePopupEscape);
+  if (typeof handlePopupEscape === 'function') {
+    document.addEventListener('keydown', handlePopupEscape);
+  }
 }
 
-// Close branch selection popup
+// Define closeBranchPopup function globally early for HTML onclick handlers
 function closeBranchPopup() {
   const popup = document.getElementById('branchPopup');
+  
+  if (!popup) {
+    console.error('Branch popup element not found');
+    return;
+  }
   
   // Hide popup
   popup.classList.add('hidden');
@@ -176,8 +284,36 @@ function closeBranchPopup() {
   document.body.style.overflow = '';
   
   // Remove escape key listener
-  document.removeEventListener('keydown', handlePopupEscape);
+  if (typeof handlePopupEscape === 'function') {
+    document.removeEventListener('keydown', handlePopupEscape);
+  }
 }
+
+// Define proceedToYearSelection function globally early
+function proceedToYearSelection() {
+  if (currentBranch) {
+    if (typeof populateYearCards === 'function') {
+      populateYearCards();
+    }
+    showSection('yearSelection');
+  } else {
+    console.warn('No branch selected for proceeding to year selection');
+  }
+}
+
+// Define selectBranchFromPopup function globally early
+function selectBranchFromPopup(branch) {
+  if (typeof selectBranch === 'function') {
+    selectBranch(branch);
+  }
+  closeBranchPopup();
+  
+  // Show selected branch display
+  if (typeof showSelectedBranchDisplay === 'function') {
+    showSelectedBranchDisplay(branch);
+  }
+}
+
 
 // Handle escape key for popup
 function handlePopupEscape(event) {
@@ -327,10 +463,15 @@ function closePopupOnOutsideClick(event) {
   }
 }
 
-// Legacy function for backward compatibility (now unused)
+// Populate engineering cards - open branch selection popup
 function populateEngineeringCards() {
-  // This function is no longer used but kept for backward compatibility
-  // The new popup system replaces the old card grid
+  // Ensure branches are loaded
+  if (engineeringBranches.length === 0) {
+    loadBranchesFromStorage();
+  }
+  
+  // Automatically open the branch selection popup when entering engineering section
+  openBranchPopup();
 }
 
 // Select branch
@@ -379,6 +520,11 @@ function selectYear(year) {
 function initializeStudentTable() {
   const tbody = document.getElementById('studentTableBody');
   tbody.innerHTML = '';
+  
+  // Set up table headers based on student type
+  if (currentStudentType === 'school') {
+    setupSchoolStudentTableHeaders();
+  }
 
   // Ensure the table shows a minimum of 10 empty rows for easier data entry
   const minimumRows = 10;
@@ -428,24 +574,43 @@ function addRowWithData(studentInfo) {
   
   // Get current number of subject pairs from headers
   const currentHeaders = headerRow.querySelectorAll('th');
-  const fixedColumns = 5; // S.No, USN, Name, Admission No, Photo
+  const fixedColumns = currentStudentType === 'school' ? 6 : 5; // School: S.No, Roll Number, Name, Father Name, Admission No, Photo | Others: S.No, USN, Name, Admission No, Photo
   const currentSubjectPairs = (currentHeaders.length - fixedColumns) / 2;
   
-  // Build row HTML dynamically
-  let rowHTML = `
-    <td class="excel-cell">${rowCount + 1}</td>
-    <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.usn || ''}"></td>
-    <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.name || ''}"></td>
-    <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.admissionNo || ''}" placeholder="Admission No"></td>
-    <td class="excel-cell photo-cell">
-      <div class="flex items-center justify-center">
-        <input type="file" accept="image/*" class="hidden photo-upload" id="photo-${rowCount + 1}" onchange="handleRowPhotoUpload(this, '${studentInfo.usn || ''}')">
-        <button onclick="document.getElementById('photo-${rowCount + 1}').click()" class="btn btn-sm ${studentPhotos[studentInfo.usn || ''] ? 'btn-success' : 'btn-secondary'} px-2 py-1 text-xs">
-          <i class="fas ${studentPhotos[studentInfo.usn || ''] ? 'fa-check' : 'fa-camera'}"></i>
-        </button>
-      </div>
-    </td>
-  `;
+  // Build row HTML dynamically based on student type
+  let rowHTML;
+  if (currentStudentType === 'school') {
+    rowHTML = `
+      <td class="excel-cell">${rowCount + 1}</td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.rollNumber || studentInfo.usn || ''}"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.name || ''}"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.fatherName || ''}" placeholder="Father Name"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.admissionNo || ''}" placeholder="Admission No"></td>
+      <td class="excel-cell photo-cell">
+        <div class="flex items-center justify-center">
+          <input type="file" accept="image/*" class="hidden photo-upload" id="photo-${rowCount + 1}" onchange="handleRowPhotoUpload(this, '${studentInfo.rollNumber || studentInfo.usn || ''}')">
+          <button onclick="document.getElementById('photo-${rowCount + 1}').click()" class="btn btn-sm ${studentPhotos[studentInfo.rollNumber || studentInfo.usn || ''] ? 'btn-success' : 'btn-secondary'} px-2 py-1 text-xs">
+            <i class="fas ${studentPhotos[studentInfo.rollNumber || studentInfo.usn || ''] ? 'fa-check' : 'fa-camera'}"></i>
+          </button>
+        </div>
+      </td>
+    `;
+  } else {
+    rowHTML = `
+      <td class="excel-cell">${rowCount + 1}</td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.usn || ''}"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.name || ''}"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" value="${studentInfo.admissionNo || ''}" placeholder="Admission No"></td>
+      <td class="excel-cell photo-cell">
+        <div class="flex items-center justify-center">
+          <input type="file" accept="image/*" class="hidden photo-upload" id="photo-${rowCount + 1}" onchange="handleRowPhotoUpload(this, '${studentInfo.usn || ''}')">
+          <button onclick="document.getElementById('photo-${rowCount + 1}').click()" class="btn btn-sm ${studentPhotos[studentInfo.usn || ''] ? 'btn-success' : 'btn-secondary'} px-2 py-1 text-xs">
+            <i class="fas ${studentPhotos[studentInfo.usn || ''] ? 'fa-check' : 'fa-camera'}"></i>
+          </button>
+        </div>
+      </td>
+    `;
+  }
   
   // Add subject columns dynamically based on current table structure
   for (let i = 0; i < currentSubjectPairs; i++) {
@@ -471,24 +636,43 @@ function addRow() {
   
   // Get current number of subject pairs from headers
   const currentHeaders = headerRow.querySelectorAll('th');
-  const fixedColumns = 5; // S.No, USN, Name, Admission No, Photo
+  const fixedColumns = currentStudentType === 'school' ? 6 : 5; // School: S.No, Roll Number, Name, Father Name, Admission No, Photo | Others: S.No, USN, Name, Admission No, Photo
   const currentSubjectPairs = (currentHeaders.length - fixedColumns) / 2;
   
-  // Build row HTML dynamically
-  let rowHTML = `
-    <td class="excel-cell">${rowCount + 1}</td>
-    <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="USN"></td>
-    <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Student Name"></td>
-    <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Admission No"></td>
-    <td class="excel-cell photo-cell">
-      <div class="flex items-center justify-center">
-        <input type="file" accept="image/*" class="hidden photo-upload" id="photo-${rowCount + 1}" onchange="handleRowPhotoUpload(this, '')">
-        <button onclick="document.getElementById('photo-${rowCount + 1}').click()" class="btn btn-sm btn-secondary px-2 py-1 text-xs">
-          <i class="fas fa-camera"></i>
-        </button>
-      </div>
-    </td>
-  `;
+  // Build row HTML dynamically based on student type
+  let rowHTML;
+  if (currentStudentType === 'school') {
+    rowHTML = `
+      <td class="excel-cell">${rowCount + 1}</td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Roll Number"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Student Name"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Father Name"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Admission No"></td>
+      <td class="excel-cell photo-cell">
+        <div class="flex items-center justify-center">
+          <input type="file" accept="image/*" class="hidden photo-upload" id="photo-${rowCount + 1}" onchange="handleRowPhotoUpload(this, '')">
+          <button onclick="document.getElementById('photo-${rowCount + 1}').click()" class="btn btn-sm btn-secondary px-2 py-1 text-xs">
+            <i class="fas fa-camera"></i>
+          </button>
+        </div>
+      </td>
+    `;
+  } else {
+    rowHTML = `
+      <td class="excel-cell">${rowCount + 1}</td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="USN"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Student Name"></td>
+      <td class="excel-cell"><input type="text" class="w-full p-1 border-none outline-none" placeholder="Admission No"></td>
+      <td class="excel-cell photo-cell">
+        <div class="flex items-center justify-center">
+          <input type="file" accept="image/*" class="hidden photo-upload" id="photo-${rowCount + 1}" onchange="handleRowPhotoUpload(this, '')">
+          <button onclick="document.getElementById('photo-${rowCount + 1}').click()" class="btn btn-sm btn-secondary px-2 py-1 text-xs">
+            <i class="fas fa-camera"></i>
+          </button>
+        </div>
+      </td>
+    `;
+  }
   
   // Add subject columns dynamically based on current table structure
   for (let i = 0; i < currentSubjectPairs; i++) {
@@ -524,7 +708,7 @@ function addColumn() {
   
   // Get current number of subject pairs
   const currentHeaders = headerRow.querySelectorAll('th');
-  const fixedColumns = 5; // S.No, USN, Name, Phone, Photo
+  const fixedColumns = currentStudentType === 'school' ? 6 : 5; // School: S.No, Roll Number, Name, Father Name, Admission No, Photo | Others: S.No, USN, Name, Admission No, Photo
   const subjectPairs = (currentHeaders.length - fixedColumns) / 2;
   const newSubjectNumber = subjectPairs + 1;
   
@@ -565,7 +749,7 @@ function removeColumn() {
   
   // Get current number of subject pairs
   const currentHeaders = headerRow.querySelectorAll('th');
-  const fixedColumns = 5; // S.No, USN, Name, Phone, Photo
+  const fixedColumns = currentStudentType === 'school' ? 6 : 5; // School: S.No, Roll Number, Name, Father Name, Admission No, Photo | Others: S.No, USN, Name, Admission No, Photo
   const subjectPairs = (currentHeaders.length - fixedColumns) / 2;
   
   if (subjectPairs <= 1) {
@@ -766,21 +950,36 @@ function collectStudentData() {
       return;
     }
     
-    const student = {
-      usn: textInputs[0].value.trim(),
-      name: textInputs[1].value.trim(),
-      admissionNo: textInputs[2].value.trim(),
-      subjects: []
-    };
+    let student, subjectStartIndex;
     
-    // Dynamic subject collection - starts from index 3, pairs of subject name and code
-    for (let i = 3; i < textInputs.length; i += 2) {
+    if (currentStudentType === 'school') {
+      student = {
+        rollNumber: textInputs[0].value.trim(),
+        usn: textInputs[0].value.trim(), // Keep USN for compatibility but use rollNumber
+        name: textInputs[1].value.trim(),
+        fatherName: textInputs[2].value.trim(),
+        admissionNo: textInputs[3].value.trim(),
+        subjects: []
+      };
+      subjectStartIndex = 4; // Subjects start from index 4 for school students
+    } else {
+      student = {
+        usn: textInputs[0].value.trim(),
+        name: textInputs[1].value.trim(),
+        admissionNo: textInputs[2].value.trim(),
+        subjects: []
+      };
+      subjectStartIndex = 3; // Subjects start from index 3 for engineering/general students
+    }
+    
+    // Dynamic subject collection - starts from appropriate index based on student type
+    for (let i = subjectStartIndex; i < textInputs.length; i += 2) {
       if (i + 1 < textInputs.length) {
         const subjectName = textInputs[i].value.trim();
         const subjectCode = textInputs[i + 1].value.trim();
         
         if (subjectName && subjectCode) {
-          const subjectIndex = Math.floor((i - 3) / 2);
+          const subjectIndex = Math.floor((i - subjectStartIndex) / 2);
           
           // Get additional subject details from bulk subjects data if available
           let subjectDetails = {
@@ -807,12 +1006,13 @@ function collectStudentData() {
     }
     
     // Debug logging
-    console.log(`Processing student ${rowIndex + 1}: USN=${student.usn}, Name=${student.name}, Subjects=${student.subjects.length}`);
+    const identifier = currentStudentType === 'school' ? student.rollNumber : student.usn;
+    console.log(`Processing student ${rowIndex + 1}: ${currentStudentType === 'school' ? 'Roll Number' : 'USN'}=${identifier}, Name=${student.name}, Subjects=${student.subjects.length}`);
     
-    if (student.usn && student.name) {
+    if (identifier && student.name) {
       studentData.push(student);
     } else {
-      console.warn(`Skipping student ${rowIndex + 1}: Missing USN or Name`);
+      console.warn(`Skipping student ${rowIndex + 1}: Missing ${currentStudentType === 'school' ? 'Roll Number' : 'USN'} or Name`);
     }
   });
   
@@ -1367,13 +1567,29 @@ function handleFileImport(event) {
       headers.forEach((header, index) => {
         const normalized = String(header || '').toLowerCase().replace(/[\s\._-]/g, '');
 
-        if (normalized.includes('usn') || normalized.includes('universityno')) {
-          columnMap.usn = index;
-        } else if (normalized.includes('name') && !normalized.includes('subject')) {
-          columnMap.name = index;
-        } else if (normalized.includes('admission') || normalized.includes('admissionno')) {
-          columnMap.admissionNo = index;
-        } else if (/(subject|sub|code|date|time)/.test(normalized)) {
+        if (currentStudentType === 'school') {
+          // For school students, look for Roll Number instead of USN
+          if (normalized.includes('roll') || normalized.includes('rollnumber') || normalized.includes('rollno')) {
+            columnMap.rollNumber = index;
+          } else if (normalized.includes('name') && !normalized.includes('subject') && !normalized.includes('father')) {
+            columnMap.name = index;
+          } else if (normalized.includes('father') && normalized.includes('name')) {
+            columnMap.fatherName = index;
+          } else if (normalized.includes('admission') || normalized.includes('admissionno')) {
+            columnMap.admissionNo = index;
+          }
+        } else {
+          // For engineering/general students, use original logic
+          if (normalized.includes('usn') || normalized.includes('universityno')) {
+            columnMap.usn = index;
+          } else if (normalized.includes('name') && !normalized.includes('subject')) {
+            columnMap.name = index;
+          } else if (normalized.includes('admission') || normalized.includes('admissionno')) {
+            columnMap.admissionNo = index;
+          }
+        }
+        
+        if (/(subject|sub|code|date|time)/.test(normalized)) {
           // Treat these as subject-related columns. Detect specific type if possible.
           if (!columnMap.subjects) columnMap.subjects = [];
           if (normalized.includes('code')) {
@@ -1389,10 +1605,17 @@ function handleFileImport(event) {
         }
       });
       
-      // Validate required columns
-      if (columnMap.usn === undefined || columnMap.name === undefined) {
-        alert('Excel file must contain USN and Name columns.\n\nSupported column names:\n- USN, University No\n- Name, Student Name\n- Admission No (optional)\n- Subject 1, Code 1, Subject 2, Code 2, etc.');
-        return;
+      // Validate required columns based on student type
+      if (currentStudentType === 'school') {
+        if (columnMap.rollNumber === undefined || columnMap.name === undefined) {
+          alert('Excel file must contain Roll Number and Name columns for school students.\n\nSupported column names:\n- Roll Number, Roll No\n- Student Name, Name\n- Father Name (optional)\n- Admission No (optional)\n- Subject 1, Code 1, Subject 2, Code 2, etc.');
+          return;
+        }
+      } else {
+        if (columnMap.usn === undefined || columnMap.name === undefined) {
+          alert('Excel file must contain USN and Name columns.\n\nSupported column names:\n- USN, University No\n- Name, Student Name\n- Admission No (optional)\n- Subject 1, Code 1, Subject 2, Code 2, etc.');
+          return;
+        }
       }
       
       // Sort subjects by index to maintain order
@@ -1418,16 +1641,33 @@ function handleFileImport(event) {
       
       // Process data rows (skip header)
       jsonData.slice(1).forEach((row, index) => {
-        if (row.length === 0 || !row[columnMap.usn] || !row[columnMap.name]) {
-          return; // Skip empty rows
-        }
+        let studentInfo;
         
-        const studentInfo = {
-          usn: String(row[columnMap.usn] || '').trim(),
-          name: String(row[columnMap.name] || '').trim(),
-          admissionNo: columnMap.admissionNo !== undefined ? String(row[columnMap.admissionNo] || '').trim() : '',
-          subjects: []
-        };
+        if (currentStudentType === 'school') {
+          if (row.length === 0 || !row[columnMap.rollNumber] || !row[columnMap.name]) {
+            return; // Skip empty rows
+          }
+          
+          studentInfo = {
+            rollNumber: String(row[columnMap.rollNumber] || '').trim(),
+            usn: String(row[columnMap.rollNumber] || '').trim(), // Keep USN for compatibility
+            name: String(row[columnMap.name] || '').trim(),
+            fatherName: columnMap.fatherName !== undefined ? String(row[columnMap.fatherName] || '').trim() : '',
+            admissionNo: columnMap.admissionNo !== undefined ? String(row[columnMap.admissionNo] || '').trim() : '',
+            subjects: []
+          };
+        } else {
+          if (row.length === 0 || !row[columnMap.usn] || !row[columnMap.name]) {
+            return; // Skip empty rows
+          }
+          
+          studentInfo = {
+            usn: String(row[columnMap.usn] || '').trim(),
+            name: String(row[columnMap.name] || '').trim(),
+            admissionNo: columnMap.admissionNo !== undefined ? String(row[columnMap.admissionNo] || '').trim() : '',
+            subjects: []
+          };
+        }
         
         // Extract subjects dynamically
         if (columnMap.subjects) {
@@ -1476,10 +1716,22 @@ function handleFileImport(event) {
       // Auto-renumber S.No after import
       renumberSNo();
       
-      alert(`Successfully imported ${importedCount} students from ${file.name}\n\nColumns detected:\n- USN: Column ${columnMap.usn + 1}\n- Name: Column ${columnMap.name + 1}\n- Admission No: ${columnMap.admissionNo !== undefined ? 'Column ' + (columnMap.admissionNo + 1) : 'Not found'}\n- Subjects: ${columnMap.subjects ? Math.ceil(columnMap.subjects.length / 2) : 0} pairs detected`);
+      let successMessage;
+      if (currentStudentType === 'school') {
+        successMessage = `Successfully imported ${importedCount} students from ${file.name}\n\nColumns detected:\n- Roll Number: Column ${columnMap.rollNumber + 1}\n- Name: Column ${columnMap.name + 1}\n- Father Name: ${columnMap.fatherName !== undefined ? 'Column ' + (columnMap.fatherName + 1) : 'Not found'}\n- Admission No: ${columnMap.admissionNo !== undefined ? 'Column ' + (columnMap.admissionNo + 1) : 'Not found'}\n- Subjects: ${columnMap.subjects ? Math.ceil(columnMap.subjects.length / 2) : 0} pairs detected`;
+      } else {
+        successMessage = `Successfully imported ${importedCount} students from ${file.name}\n\nColumns detected:\n- USN: Column ${columnMap.usn + 1}\n- Name: Column ${columnMap.name + 1}\n- Admission No: ${columnMap.admissionNo !== undefined ? 'Column ' + (columnMap.admissionNo + 1) : 'Not found'}\n- Subjects: ${columnMap.subjects ? Math.ceil(columnMap.subjects.length / 2) : 0} pairs detected`;
+      }
+      alert(successMessage);
       
     } catch (error) {
-      alert('Error reading file. Please make sure it\'s a valid Excel or CSV file.\n\nSupported format:\nAny order: S.No, USN, Name, Admission No, Subject 1, Code 1, Subject 2, Code 2, etc.');
+      let errorMessage;
+      if (currentStudentType === 'school') {
+        errorMessage = 'Error reading file. Please make sure it\'s a valid Excel or CSV file.\n\nSupported format for school students:\nAny order: S.No, Roll Number, Student Name, Father Name, Admission No, Subject 1, Code 1, Subject 2, Code 2, etc.';
+      } else {
+        errorMessage = 'Error reading file. Please make sure it\'s a valid Excel or CSV file.\n\nSupported format:\nAny order: S.No, USN, Name, Admission No, Subject 1, Code 1, Subject 2, Code 2, etc.';
+      }
+      alert(errorMessage);
       console.error('Import error:', error);
     }
   };
@@ -1503,7 +1755,7 @@ function adjustTableForSubjects(maxSubjects) {
   
   // Get current number of subject pairs
   const currentHeaders = headerRow.querySelectorAll('th');
-  const fixedColumns = 5; // S.No, USN, Name, Admission No, Photo
+  const fixedColumns = currentStudentType === 'school' ? 6 : 5; // School: S.No, Roll Number, Name, Father Name, Admission No, Photo | Others: S.No, USN, Name, Admission No, Photo
   const currentSubjectPairs = (currentHeaders.length - fixedColumns) / 2;
   
   if (maxSubjects > currentSubjectPairs) {
@@ -1745,8 +1997,18 @@ function generateVTUStylePDF(students, filename) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF('p', 'mm', 'a4');
   
-  const institutionName = document.getElementById('institutionName').value || 'VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI';
-  const examTitle = document.getElementById('examTitle').value || 'ADMISSION TICKET FOR B.E EXAMINATION JUNE / JULY 2025';
+  // Get institution name based on student type
+  let institutionName, examTitle;
+  
+  if (currentStudentType === 'school' && classInformation.schoolInfo && classInformation.schoolInfo.schoolName) {
+    // Use school information for school students
+    institutionName = classInformation.schoolInfo.schoolName.toUpperCase();
+    examTitle = document.getElementById('examTitle').value || 'SCHOOL EXAMINATION HALL TICKET';
+  } else {
+    // Use form values or defaults for college/engineering students
+    institutionName = document.getElementById('institutionName').value || 'VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI';
+    examTitle = document.getElementById('examTitle').value || 'ADMISSION TICKET FOR B.E EXAMINATION JUNE / JULY 2025';
+  }
   
   students.forEach((student, index) => {
     // Add new page for each student (two copies per page)
@@ -1809,20 +2071,26 @@ function addVTUHallTicketToPDF(pdf, student, yOffset, institutionName, examTitle
   const logoSize = 18;
   pdf.rect(startX + 5, startY + 5, logoSize, logoSize);
   
-  // Add college logo if available
-  if (collegeLogoData) {
+  // Add logo based on student type
+  const logoToUse = currentStudentType === 'school' && classInformation.schoolInfo?.schoolLogo 
+    ? classInformation.schoolInfo.schoolLogo 
+    : collegeLogoData;
+    
+  const logoLabel = currentStudentType === 'school' ? 'SCHOOL' : 'COLLEGE';
+  
+  if (logoToUse) {
     try {
-      pdf.addImage(collegeLogoData, 'JPEG', startX + 5, startY + 5, logoSize, logoSize);
+      pdf.addImage(logoToUse, 'JPEG', startX + 5, startY + 5, logoSize, logoSize);
     } catch (error) {
       pdf.setFontSize(6);
       pdf.setTextColor(100, 100, 100);
-      pdf.text('COLLEGE', startX + 5 + logoSize/2, startY + 12, { align: 'center' });
+      pdf.text(logoLabel, startX + 5 + logoSize/2, startY + 12, { align: 'center' });
       pdf.text('LOGO', startX + 5 + logoSize/2, startY + 16, { align: 'center' });
     }
   } else {
     pdf.setFontSize(6);
     pdf.setTextColor(100, 100, 100);
-    pdf.text('COLLEGE', startX + 5 + logoSize/2, startY + 12, { align: 'center' });
+    pdf.text(logoLabel, startX + 5 + logoSize/2, startY + 12, { align: 'center' });
     pdf.text('LOGO', startX + 5 + logoSize/2, startY + 16, { align: 'center' });
   }
   
@@ -1851,8 +2119,21 @@ function addVTUHallTicketToPDF(pdf, student, yOffset, institutionName, examTitle
   pdf.setFont('helvetica', 'bold');
   pdf.text(institutionName.toUpperCase(), startX + copyWidth/2, startY + 8, { align: 'center' });
   
-  // Department name if branch is selected
-  if (currentBranch) {
+  // Department/Class information based on student type
+  if (currentStudentType === 'school' && classInformation.schoolInfo) {
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'bold');
+    let classText = '';
+    if (classInformation.schoolClass && classInformation.schoolClass !== 'N/A') {
+      classText = classInformation.schoolClass.toUpperCase();
+    }
+    if (classInformation.schoolInfo.schoolBoard) {
+      classText += ` - ${classInformation.schoolInfo.schoolBoard.toUpperCase()}`;
+    }
+    if (classText) {
+      pdf.text(classText, startX + copyWidth/2, startY + 14, { align: 'center' });
+    }
+  } else if (currentBranch) {
     pdf.setFontSize(8);
     pdf.setFont('helvetica', 'bold');
     pdf.text(`DEPARTMENT OF ${currentBranch.name.toUpperCase()}`, startX + copyWidth/2, startY + 14, { align: 'center' });
@@ -3392,9 +3673,6 @@ function handleAddBranchEscape(event) {
 // Variable to store the branch being deleted
 let branchToDelete = null;
 
-// Variable to track delete mode state
-let isDeleteMode = false;
-
 // Open delete branch modal
 function openDeleteBranchModal(branchId, branchName) {
   // Store the branch to be deleted
@@ -3784,7 +4062,7 @@ function applyBulkSubjectsToAll() {
   // Get current number of subject pairs from headers
   const headerRow = table.querySelector('thead tr');
   const currentHeaders = headerRow.querySelectorAll('th');
-  const fixedColumns = 5; // S.No, USN, Name, Admission No, Photo
+  const fixedColumns = currentStudentType === 'school' ? 6 : 5; // School: S.No, Roll Number, Name, Father Name, Admission No, Photo | Others: S.No, USN, Name, Admission No, Photo
   const currentSubjectPairs = (currentHeaders.length - fixedColumns) / 2;
   
   // Add more columns if needed
@@ -3803,11 +4081,14 @@ function applyBulkSubjectsToAll() {
     // Get all text inputs in this row (excluding file inputs)
     const textInputs = row.querySelectorAll('input[type="text"]');
     
-    if (textInputs.length >= 3) { // At least USN, Name, Admission No
-      // Apply subjects starting from index 3 (after USN, Name, Admission No)
+    const minRequiredFields = currentStudentType === 'school' ? 4 : 3; // School needs Roll Number, Name, Father Name, Admission No | Others need USN, Name, Admission No
+    if (textInputs.length >= minRequiredFields) {
+      // Apply subjects starting from appropriate index based on student type
+      const subjectStartIndex = currentStudentType === 'school' ? 4 : 3; // School: after Roll Number, Name, Father Name, Admission No | Others: after USN, Name, Admission No
+      
       for (let i = 0; i < bulkSubjects.length; i++) {
-        const subjectIndex = 3 + (i * 2); // Subject name index
-        const codeIndex = 3 + (i * 2) + 1; // Subject code index
+        const subjectIndex = subjectStartIndex + (i * 2); // Subject name index
+        const codeIndex = subjectStartIndex + (i * 2) + 1; // Subject code index
         
         if (subjectIndex < textInputs.length && codeIndex < textInputs.length) {
           textInputs[subjectIndex].value = bulkSubjects[i].name;
@@ -4115,7 +4396,43 @@ function saveClassInfo() {
   const examTime = document.getElementById('examTime').value;
   const examDuration = document.getElementById('examDuration').value;
   const specialInstructions = document.getElementById('specialInstructions').value;
-  // Invigilator contact and help desk fields removed as per request
+  
+  // Get school information if school student
+  let schoolClass = 'N/A';
+  let schoolInfo = {};
+  
+  if (currentStudentType === 'school') {
+    const schoolClassSelect = document.getElementById('schoolClassSelect');
+    const customClassInput = document.getElementById('customClassInput');
+    
+    if (schoolClassSelect && schoolClassSelect.value) {
+      if (schoolClassSelect.value === 'other' && customClassInput && customClassInput.value.trim()) {
+        // Use custom class name
+        schoolClass = customClassInput.value.trim();
+        currentClass = {
+          number: 'custom',
+          name: schoolClass,
+          level: 'Custom Class'
+        };
+      } else if (schoolClassSelect.value !== 'other') {
+        // Use predefined class
+        schoolClass = `Class ${schoolClassSelect.value}`;
+        currentClass = {
+          number: schoolClassSelect.value,
+          name: schoolClass,
+          level: getSchoolLevelFromClass(schoolClassSelect.value)
+        };
+      }
+    }
+    
+    // Collect school information
+    schoolInfo = {
+      schoolName: document.getElementById('schoolName')?.value || '',
+      schoolCode: document.getElementById('schoolCode')?.value || '',
+      schoolBoard: document.getElementById('schoolBoard')?.value || '',
+      schoolLogo: window.schoolLogoData || null
+    };
+  }
   
   classInformation = {
     examType,
@@ -4127,8 +4444,13 @@ function saveClassInfo() {
     examTime,
     examDuration,
     specialInstructions,
-    branch: currentBranch.name,
-    year: currentYear.name,
+    studentType: currentStudentType,
+    branch: currentBranch?.name || 'N/A',
+    course: currentCourse?.name || 'N/A',
+    schoolLevel: currentSchoolLevel || 'N/A',
+    schoolClass: schoolClass,
+    schoolInfo: schoolInfo,
+    year: currentYear?.name || 'N/A',
     timestamp: new Date().toISOString()
   };
   
@@ -4136,8 +4458,45 @@ function saveClassInfo() {
   updateClassPreview();
 }
 
+// Get school level from class number
+function getSchoolLevelFromClass(classNum) {
+  const num = parseInt(classNum);
+  if (num >= 1 && num <= 5) return 'Primary School';
+  if (num >= 6 && num <= 8) return 'Middle School';
+  if (num >= 9 && num <= 10) return 'Secondary School';
+  if (num >= 11 && num <= 12) return 'Senior Secondary';
+  return 'School';
+}
+
 // Proceed to data entry from class customization
 function proceedToDataEntry() {
+  // Validate school class information if school student
+  if (currentStudentType === 'school') {
+    const schoolClassSelect = document.getElementById('schoolClassSelect');
+    const customClassInput = document.getElementById('customClassInput');
+    
+    if (!schoolClassSelect || !schoolClassSelect.value) {
+      alert('Please select a class before proceeding.');
+      return;
+    }
+    
+    if (schoolClassSelect.value === 'other') {
+      if (!customClassInput || !customClassInput.value.trim()) {
+        alert('Please enter a custom class name.');
+        customClassInput?.focus();
+        return;
+      }
+    }
+    
+    // Validate required school information
+    const schoolName = document.getElementById('schoolName');
+    if (!schoolName || !schoolName.value.trim()) {
+      alert('Please enter the school name.');
+      schoolName?.focus();
+      return;
+    }
+  }
+  
   // Save current class information
   saveClassInfo();
   
@@ -4195,6 +4554,885 @@ function initializeAdditionalSettings() {
   console.log('Additional settings initialized successfully');
 }
 
+// ============ STUDENT TYPE SELECTION FUNCTIONS ============
+
+// Handle student type selection
+function selectStudentType(type) {
+  currentStudentType = type;
+  
+  if (type === 'engineering') {
+    // Go to engineering branch selection
+    showSection('engineering');
+  } else if (type === 'general') {
+    // Go to general course selection
+    showSection('general');
+  } else if (type === 'school') {
+    // Go directly to class information form for school students
+    setupSchoolStudentForm();
+    showSection('classCustomization');
+  }
+}
+
+// Handle general course selection
+function handleGeneralCourseSelection() {
+  const select = document.getElementById('generalCourseSelect');
+  const selectedCourse = select.value;
+  
+  if (selectedCourse) {
+    // Set current course
+    currentCourse = {
+      id: selectedCourse,
+      name: select.options[select.selectedIndex].text
+    };
+    
+    // Show selected course display
+    showSelectedCourseDisplay(currentCourse);
+    
+    // Show year cards for general students
+    populateGeneralYearCards();
+  }
+}
+
+// Show selected course in the general section
+function showSelectedCourseDisplay(course) {
+  const display = document.getElementById('selectedCourseDisplay');
+  const icon = document.getElementById('selectedCourseIcon');
+  const name = document.getElementById('selectedCourseName');
+  const description = document.getElementById('selectedCourseDescription');
+  
+  // Update display elements
+  name.textContent = course.name;
+  description.textContent = 'General Academic Program';
+  
+  // Show the display
+  display.classList.remove('hidden');
+}
+
+// Proceed to general year selection
+function proceedToGeneralYearSelection() {
+  if (currentCourse) {
+    populateGeneralYearCards();
+    document.getElementById('generalYearCards').classList.remove('hidden');
+  }
+}
+
+// Populate year cards for general students
+function populateGeneralYearCards() {
+  const container = document.getElementById('generalYearCards');
+  container.innerHTML = '';
+  
+  // Define general academic years (fewer than engineering)
+  const generalYears = [
+    { id: '1', name: '1st Year' },
+    { id: '2', name: '2nd Year' },
+    { id: '3', name: '3rd Year' }
+  ];
+  
+  // Add Master's years if it's a master's program
+  if (currentCourse && (currentCourse.id.startsWith('m') || currentCourse.id === 'mba')) {
+    generalYears.splice(2, 1); // Remove 3rd year
+    generalYears.push({ id: '4', name: 'Final Year' });
+  }
+  
+  generalYears.forEach(year => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-xl shadow-lg p-6 card-hover cursor-pointer text-center border-2 border-transparent hover:border-green-500';
+    card.onclick = () => selectGeneralYear(year);
+    
+    card.innerHTML = `
+      <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-2xl font-bold text-green-600">${year.id}</span>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">${year.name}</h3>
+      <p class="text-gray-600">General Subjects</p>
+      <div class="mt-4">
+        <i class="fas fa-arrow-right text-green-600"></i>
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+// Select year for general students
+function selectGeneralYear(year) {
+  currentYear = year;
+  
+  // Set up general class information
+  setupGeneralClassInfo();
+  
+  // Go directly to hall ticket customization for general students
+  showSection('generator');
+}
+
+// Setup class information for general students
+function setupGeneralClassInfo() {
+  // Set class details for general students
+  const selectedDetails = document.getElementById('selectedDetails');
+  const selectedClassDetails = document.getElementById('selectedClassDetails');
+  
+  if (selectedDetails) {
+    selectedDetails.textContent = `${currentCourse.name} - ${currentYear.name}`;
+  }
+  if (selectedClassDetails) {
+    selectedClassDetails.textContent = `${currentCourse.name} - ${currentYear.name}`;
+  }
+  
+  // Update hall ticket customization for general students
+  updateGeneralHallTicketSettings();
+}
+
+// Update hall ticket settings for general students
+function updateGeneralHallTicketSettings() {
+  // Use customized institution name if available
+  let institutionName = 'ACADEMIC INSTITUTION';
+  if (customCourseData && customCourseData.institutionName) {
+    institutionName = customCourseData.institutionName.toUpperCase();
+  } else if (customCourseData && customCourseData.university) {
+    institutionName = customCourseData.university.toUpperCase();
+  }
+  
+  // Use customized course name for exam title
+  let courseName = currentCourse.name;
+  if (customCourseData && customCourseData.courseName) {
+    courseName = customCourseData.courseName;
+    
+    // Add stream/specialization info
+    if (customCourseData.specialization) {
+      courseName += ` (${customCourseData.specialization})`;
+    }
+  }
+  
+  ticketCustomization.institutionName = institutionName;
+  ticketCustomization.examTitle = `ADMISSION TICKET FOR ${courseName.toUpperCase()} EXAMINATION`;
+  
+  // Update form fields if they exist
+  const institutionInput = document.getElementById('institutionName');
+  const examTitleInput = document.getElementById('examTitle');
+  
+  if (institutionInput && !institutionInput.value) {
+    institutionInput.value = ticketCustomization.institutionName;
+  }
+  if (examTitleInput && !examTitleInput.value) {
+    examTitleInput.value = ticketCustomization.examTitle;
+  }
+}
+
+// ============ COURSE CUSTOMIZATION FUNCTIONS ============
+
+// Open course customization modal
+function openCourseCustomizationModal() {
+  const modal = document.getElementById('courseCustomizationModal');
+  
+  // Pre-fill form with current course data
+  if (currentCourse) {
+    document.getElementById('customCourseName').value = currentCourse.name || '';
+    
+    // Extract course code from the course ID
+    const courseCodeMap = {
+      'ba': 'BA',
+      'bsc': 'BSc', 
+      'bcom': 'BCom',
+      'bca': 'BCA',
+      'bba': 'BBA',
+      'ma': 'MA',
+      'msc': 'MSc',
+      'mcom': 'MCom',
+      'mca': 'MCA',
+      'mba': 'MBA'
+    };
+    document.getElementById('customCourseCode').value = courseCodeMap[currentCourse.id] || '';
+  }
+  
+  // Clear previous custom data if any
+  if (customCourseData) {
+    populateCustomizationForm(customCourseData);
+  }
+  
+  // Show modal
+  modal.classList.remove('hidden');
+  
+  // Prevent body scrolling
+  document.body.style.overflow = 'hidden';
+  
+  // Focus on first input
+  setTimeout(() => {
+    document.getElementById('customCourseName').focus();
+  }, 100);
+}
+
+// Close course customization modal
+function closeCourseCustomizationModal() {
+  const modal = document.getElementById('courseCustomizationModal');
+  
+  // Hide modal
+  modal.classList.add('hidden');
+  
+  // Restore body scrolling
+  document.body.style.overflow = '';
+}
+
+// Populate customization form with existing data
+function populateCustomizationForm(data) {
+  document.getElementById('customCourseName').value = data.courseName || '';
+  document.getElementById('customCourseCode').value = data.courseCode || '';
+  document.getElementById('customStream').value = data.stream || '';
+  document.getElementById('customSpecialization').value = data.specialization || '';
+  document.getElementById('customInstitutionName').value = data.institutionName || '';
+  document.getElementById('customUniversity').value = data.university || '';
+  document.getElementById('customDuration').value = data.duration || '';
+  document.getElementById('isHonours').checked = data.isHonours || false;
+  document.getElementById('isDistance').checked = data.isDistance || false;
+  document.getElementById('isPartTime').checked = data.isPartTime || false;
+}
+
+// Save course customization
+function saveCourseCustomization(event) {
+  event.preventDefault();
+  
+  // Collect form data
+  const formData = {
+    courseName: document.getElementById('customCourseName').value.trim(),
+    courseCode: document.getElementById('customCourseCode').value.trim(),
+    stream: document.getElementById('customStream').value,
+    specialization: document.getElementById('customSpecialization').value.trim(),
+    institutionName: document.getElementById('customInstitutionName').value.trim(),
+    university: document.getElementById('customUniversity').value.trim(),
+    duration: document.getElementById('customDuration').value,
+    isHonours: document.getElementById('isHonours').checked,
+    isDistance: document.getElementById('isDistance').checked,
+    isPartTime: document.getElementById('isPartTime').checked,
+    customized: true,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Validate required fields
+  if (!formData.courseName) {
+    alert('Course Name is required!');
+    return;
+  }
+  
+  // Save customization data
+  customCourseData = formData;
+  
+  // Update current course with customized data
+  currentCourse = {
+    id: currentCourse.id,
+    name: buildCustomCourseName(formData),
+    originalName: currentCourse.name,
+    customData: formData
+  };
+  
+  // Update the display
+  updateSelectedCourseDisplayWithCustomization();
+  
+  // Close modal
+  closeCourseCustomizationModal();
+  
+  // Show success message
+  showSuccess('Course customization saved successfully!');
+}
+
+// Build custom course name from form data
+function buildCustomCourseName(data) {
+  let courseName = data.courseName;
+  
+  // Add specialization if provided
+  if (data.specialization) {
+    courseName += ` (${data.specialization})`;
+  }
+  
+  // Add course type indicators
+  const indicators = [];
+  if (data.isHonours) indicators.push('Honours');
+  if (data.isDistance) indicators.push('Distance Learning');
+  if (data.isPartTime) indicators.push('Part-time');
+  
+  if (indicators.length > 0) {
+    courseName += ` - ${indicators.join(', ')}`;
+  }
+  
+  return courseName;
+}
+
+// Update selected course display with customization
+function updateSelectedCourseDisplayWithCustomization() {
+  const name = document.getElementById('selectedCourseName');
+  const description = document.getElementById('selectedCourseDescription');
+  
+  if (name) {
+    name.textContent = currentCourse.name;
+  }
+  
+  if (description && customCourseData) {
+    let descriptionText = 'Customized Course';
+    if (customCourseData.stream) {
+      descriptionText += ` - ${getStreamDisplayName(customCourseData.stream)}`;
+    }
+    if (customCourseData.duration) {
+      descriptionText += ` (${customCourseData.duration.replace('-', ' ')})`;
+    }
+    description.textContent = descriptionText;
+  }
+  
+  // Add customization indicator
+  addCustomizationIndicator();
+}
+
+// Add visual indicator for customization
+function addCustomizationIndicator() {
+  const display = document.getElementById('selectedCourseDisplay');
+  
+  // Remove existing indicator if any
+  const existingIndicator = display.querySelector('.customization-indicator');
+  if (existingIndicator) {
+    existingIndicator.remove();
+  }
+  
+  // Add new customization indicator
+  const indicator = document.createElement('div');
+  indicator.className = 'customization-indicator mt-2 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full inline-block';
+  indicator.innerHTML = '<i class="fas fa-cog mr-1"></i>Customized';
+  
+  const firstDiv = display.querySelector('div');
+  if (firstDiv) {
+    firstDiv.appendChild(indicator);
+  }
+}
+
+// Get display name for stream
+function getStreamDisplayName(stream) {
+  const streamNames = {
+    'arts': 'Arts/Humanities',
+    'science': 'Science',
+    'commerce': 'Commerce',
+    'computer-applications': 'Computer Applications',
+    'business-administration': 'Business Administration',
+    'management': 'Management',
+    'other': 'Other'
+  };
+  return streamNames[stream] || stream;
+}
+
+// Show success message
+function showSuccess(message) {
+  // Create temporary success notification
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+  notification.innerHTML = `<i class="fas fa-check mr-2"></i>${message}`;
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 3000);
+}
+
+// Setup school student form
+function setupSchoolStudentForm() {
+  // Set up the class customization section for school students
+  const selectedClassDetails = document.getElementById('selectedClassDetails');
+  if (selectedClassDetails) {
+    selectedClassDetails.textContent = 'School Student - Class Information Setup';
+  }
+  
+  // Show school-specific fields in the class customization form
+  setupSchoolClassCustomization();
+}
+
+// Setup class customization for school students
+function setupSchoolClassCustomization() {
+  // Add school information section at the top of the form
+  addSchoolInformationSection();
+  
+  // Add class selection dropdown to the examination details section
+  const examTypeSelect = document.getElementById('examType');
+  const semesterSelect = document.getElementById('semester');
+  
+  // Add class selection before exam type
+  if (examTypeSelect && !document.getElementById('schoolClassSelect')) {
+    const classSelectDiv = document.createElement('div');
+    classSelectDiv.innerHTML = `
+      <label class="block text-sm font-medium text-gray-700 mb-2">Class *</label>
+      <select id="schoolClassSelect" class="form-select" required onchange="handleSchoolClassSelection()">
+        <option value="">Select Class...</option>
+        <option value="1">Class 1st</option>
+        <option value="2">Class 2nd</option>
+        <option value="3">Class 3rd</option>
+        <option value="4">Class 4th</option>
+        <option value="5">Class 5th</option>
+        <option value="6">Class 6th</option>
+        <option value="7">Class 7th</option>
+        <option value="8">Class 8th</option>
+        <option value="9">Class 9th</option>
+        <option value="10">Class 10th</option>
+        <option value="11">Class 11th</option>
+        <option value="12">Class 12th</option>
+        <option value="other">Other (Customize)</option>
+      </select>
+      
+      <!-- Custom class input - initially hidden -->
+      <div id="customClassDiv" class="mt-3 hidden">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Custom Class Name *</label>
+        <input type="text" id="customClassInput" class="form-input" placeholder="Enter custom class name (e.g., Nursery, KG-1, Pre-School, etc.)" maxlength="50">
+        <p class="text-xs text-gray-500 mt-1">Enter any class name that suits your school system</p>
+      </div>
+    `;
+    
+    examTypeSelect.parentElement.parentElement.insertBefore(classSelectDiv, examTypeSelect.parentElement);
+  }
+  
+  // Update exam types for school students
+  if (examTypeSelect) {
+    examTypeSelect.innerHTML = `
+      <option value="unit-test">Unit Test</option>
+      <option value="monthly-test">Monthly Test</option>
+      <option value="quarterly">Quarterly Examination</option>
+      <option value="half-yearly">Half Yearly Examination</option>
+      <option value="annual">Annual Examination</option>
+      <option value="board-exam">Board Examination</option>
+      <option value="practical">Practical Examination</option>
+      <option value="other">Other</option>
+    `;
+  }
+  
+  // Update semester options for school students
+  if (semesterSelect) {
+    semesterSelect.innerHTML = `
+      <option value="first-term">First Term</option>
+      <option value="second-term">Second Term</option>
+      <option value="annual">Annual</option>
+    `;
+  }
+  
+  // Update Center Code label and placeholder for school students
+  updateCenterCodeForSchoolStudents();
+  
+  // Update default values for school
+  const centerName = document.getElementById('centerName');
+  if (centerName && !centerName.value) {
+    centerName.value = 'School Examination Center';
+  }
+  
+  const examTime = document.getElementById('examTime');
+  if (examTime && !examTime.value) {
+    examTime.value = '10:00 AM - 1:00 PM';
+  }
+  
+  const examDuration = document.getElementById('examDuration');
+  if (examDuration && !examDuration.value) {
+    examDuration.value = '3 Hours';
+  }
+  
+  const specialInstructions = document.getElementById('specialInstructions');
+  if (specialInstructions && !specialInstructions.value) {
+    specialInstructions.value = `• Report to examination center 30 minutes before exam time
+• Carry valid school ID card along with this hall ticket
+• Bring required stationery items
+• Mobile phones are strictly prohibited`;
+  }
+}
+
+// Update Center Code field to School Address only for school students
+function updateCenterCodeForSchoolStudents() {
+  // Only apply this change if current student type is school
+  if (currentStudentType !== 'school') {
+    return;
+  }
+  
+  // Find and update the "Exam Center Code" label
+  const labels = document.querySelectorAll('label');
+  
+  for (let label of labels) {
+    if (label.textContent.includes('Exam Center Code')) {
+      label.textContent = 'School Address';
+      break;
+    }
+  }
+  
+  // Update the input field
+  const centerCodeInput = document.getElementById('centerCode');
+  if (centerCodeInput) {
+    centerCodeInput.placeholder = 'Enter school address';
+    if (centerCodeInput.value === 'GN001') {
+      centerCodeInput.value = ''; // Clear default value for school
+    }
+  }
+}
+
+// Add school information section to the form
+function addSchoolInformationSection() {
+  // Check if school information section already exists
+  if (document.getElementById('schoolInformationSection')) {
+    return;
+  }
+  
+  const formContainer = document.querySelector('#classCustomization .space-y-6');
+  if (formContainer) {
+    // Create school information section
+    const schoolInfoSection = document.createElement('div');
+    schoolInfoSection.id = 'schoolInformationSection';
+    schoolInfoSection.className = 'border-b border-gray-200 pb-6';
+    schoolInfoSection.innerHTML = `
+      <h4 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+        <i class="fas fa-school mr-2 text-orange-600"></i>School Information
+      </h4>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">School Name *</label>
+          <input type="text" id="schoolName" class="form-input" placeholder="Enter school name" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">School Code/ID</label>
+          <input type="text" id="schoolCode" class="form-input" placeholder="e.g., UDISE Code, School ID">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Board/Affiliation</label>
+          <select id="schoolBoard" class="form-select">
+            <option value="">Select Board...</option>
+            <option value="cbse">CBSE (Central Board of Secondary Education)</option>
+            <option value="icse">ICSE (Indian Certificate of Secondary Education)</option>
+            <option value="state-board">State Board</option>
+            <option value="igcse">IGCSE (International General Certificate)</option>
+            <option value="ib">IB (International Baccalaureate)</option>
+            <option value="nios">NIOS (National Institute of Open Schooling)</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-image mr-1 text-orange-600"></i>School Logo <span class="text-xs text-gray-500">(Optional)</span>
+          </label>
+          <input type="file" id="schoolLogoUpload" accept="image/*,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,.svg" class="form-input" onchange="previewSchoolLogo(event)">
+          <p class="text-xs text-gray-500 mt-1">Appears on hall ticket • Recommended: 200x200px, PNG/JPG format</p>
+          
+          <!-- School Logo Preview -->
+          <div id="schoolLogoPreview" class="mt-3 hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700">School Logo Preview:</span>
+              <button type="button" onclick="removeSchoolLogo()" class="text-red-600 hover:text-red-800 text-sm">
+                <i class="fas fa-times mr-1"></i>Remove
+              </button>
+            </div>
+            <div class="border-2 border-gray-200 rounded-lg p-3 bg-gray-50 flex items-center justify-center">
+              <img id="schoolLogoPreviewImg" src="" alt="School Logo" class="max-h-20 max-w-32 object-contain">
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert at the beginning of the form
+    formContainer.insertBefore(schoolInfoSection, formContainer.firstChild);
+    
+    // Update the header to show it's for school students
+    const header = document.querySelector('#classCustomization h3');
+    if (header) {
+      header.innerHTML = '<i class="fas fa-school mr-3 text-orange-600"></i>School Class Information';
+    }
+  }
+}
+
+// Preview uploaded school logo
+function previewSchoolLogo(event) {
+  const file = event.target.files[0];
+  
+  if (!file) return;
+  
+  if (!file.type.startsWith('image/')) {
+    alert('Please select a valid image file!');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const logoPreview = document.getElementById('schoolLogoPreview');
+    const logoPreviewImg = document.getElementById('schoolLogoPreviewImg');
+    
+    // Set the image source
+    logoPreviewImg.src = e.target.result;
+    
+    // Show the preview container
+    logoPreview.classList.remove('hidden');
+    
+    // Store the logo data for PDF generation
+    if (typeof schoolLogoData !== 'undefined') {
+      schoolLogoData = e.target.result;
+    } else {
+      window.schoolLogoData = e.target.result;
+    }
+    
+    showSuccess('School logo uploaded successfully!');
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+// Remove school logo
+function removeSchoolLogo() {
+  const logoPreview = document.getElementById('schoolLogoPreview');
+  const logoUpload = document.getElementById('schoolLogoUpload');
+  const logoPreviewImg = document.getElementById('schoolLogoPreviewImg');
+  
+  // Clear the file input
+  logoUpload.value = '';
+  
+  // Clear the preview image
+  logoPreviewImg.src = '';
+  
+  // Hide the preview container
+  logoPreview.classList.add('hidden');
+  
+  // Clear the stored logo data
+  if (typeof schoolLogoData !== 'undefined') {
+    schoolLogoData = null;
+  } else if (window.schoolLogoData) {
+    window.schoolLogoData = null;
+  }
+  
+  showSuccess('School logo removed!');
+}
+
+// Setup table headers specifically for school students
+function setupSchoolStudentTableHeaders() {
+  const table = document.getElementById('studentTable');
+  const headerRow = table.querySelector('thead tr');
+  
+  if (!headerRow) return;
+  
+  // Replace headers for school students: S.No, Roll Number, Student Name, Father Name, Admission No, Photo, Subjects...
+  headerRow.innerHTML = `
+    <th class="excel-cell">S.No</th>
+    <th class="excel-cell">Roll Number</th>
+    <th class="excel-cell">Student Name</th>
+    <th class="excel-cell">Father Name</th>
+    <th class="excel-cell">Admission No</th>
+    <th class="excel-cell">Photo</th>
+    <th class="excel-cell">Subject 1</th>
+    <th class="excel-cell">Code 1</th>
+    <th class="excel-cell">Subject 2</th>
+    <th class="excel-cell">Code 2</th>
+    <th class="excel-cell">Subject 3</th>
+    <th class="excel-cell">Code 3</th>
+    <th class="excel-cell">Subject 4</th>
+    <th class="excel-cell">Code 4</th>
+    <th class="excel-cell">Subject 5</th>
+    <th class="excel-cell">Code 5</th>
+  `;
+}
+
+// Handle school class selection
+function handleSchoolClassSelection() {
+  const classSelect = document.getElementById('schoolClassSelect');
+  const customClassDiv = document.getElementById('customClassDiv');
+  const customClassInput = document.getElementById('customClassInput');
+  
+  if (!classSelect || !customClassDiv || !customClassInput) return;
+  
+  if (classSelect.value === 'other') {
+    // Show custom class input
+    customClassDiv.classList.remove('hidden');
+    customClassInput.required = true;
+    customClassInput.focus();
+    
+    // Clear any previous custom input
+    customClassInput.value = '';
+  } else {
+    // Hide custom class input
+    customClassDiv.classList.add('hidden');
+    customClassInput.required = false;
+    customClassInput.value = '';
+  }
+}
+
+// ============ SCHOOL STUDENTS FUNCTIONS ============
+
+// School levels configuration
+const schoolLevels = {
+  primary: {
+    name: 'Primary School',
+    classes: [1, 2, 3, 4, 5],
+    icon: 'fas fa-child',
+    color: 'pink'
+  },
+  middle: {
+    name: 'Middle School', 
+    classes: [6, 7, 8],
+    icon: 'fas fa-user-graduate',
+    color: 'cyan'
+  },
+  secondary: {
+    name: 'Secondary School',
+    classes: [9, 10],
+    icon: 'fas fa-book',
+    color: 'indigo'
+  },
+  senior: {
+    name: 'Senior Secondary',
+    classes: [11, 12],
+    icon: 'fas fa-certificate', 
+    color: 'emerald'
+  }
+};
+
+// Handle school level selection
+function selectSchoolLevel(level) {
+  currentSchoolLevel = level;
+  const levelData = schoolLevels[level];
+  
+  // Show selected level display
+  showSelectedSchoolLevelDisplay(levelData);
+  
+  // Show class selection for this level
+  populateSchoolClassCards(levelData);
+  
+  // Show the class selection section
+  document.getElementById('schoolClassSelection').classList.remove('hidden');
+}
+
+// Show selected school level display
+function showSelectedSchoolLevelDisplay(levelData) {
+  const display = document.getElementById('selectedSchoolLevelDisplay');
+  const icon = document.getElementById('selectedSchoolIcon');
+  const name = document.getElementById('selectedSchoolLevelName');
+  const description = document.getElementById('selectedSchoolDescription');
+  
+  // Update display elements
+  icon.className = `${levelData.icon} text-2xl text-${levelData.color}-600 flex-shrink-0`;
+  name.textContent = levelData.name;
+  description.textContent = `Classes ${levelData.classes[0]} to ${levelData.classes[levelData.classes.length - 1]}`;
+  
+  // Show the display
+  display.classList.remove('hidden');
+}
+
+// Populate class cards for selected school level
+function populateSchoolClassCards(levelData) {
+  const container = document.getElementById('schoolClassCards');
+  container.innerHTML = '';
+  
+  levelData.classes.forEach(classNum => {
+    const card = document.createElement('div');
+    card.className = `bg-white rounded-xl shadow-lg p-4 card-hover cursor-pointer text-center border-2 border-transparent hover:border-${levelData.color}-500`;
+    card.onclick = () => selectSchoolClass(classNum, levelData);
+    
+    // Add different styling for different levels
+    let bgColorClass, textColorClass;
+    switch(levelData.color) {
+      case 'pink':
+        bgColorClass = 'bg-pink-100';
+        textColorClass = 'text-pink-600';
+        break;
+      case 'cyan':
+        bgColorClass = 'bg-cyan-100';
+        textColorClass = 'text-cyan-600';
+        break;
+      case 'indigo':
+        bgColorClass = 'bg-indigo-100';
+        textColorClass = 'text-indigo-600';
+        break;
+      case 'emerald':
+        bgColorClass = 'bg-emerald-100';
+        textColorClass = 'text-emerald-600';
+        break;
+      default:
+        bgColorClass = 'bg-gray-100';
+        textColorClass = 'text-gray-600';
+    }
+    
+    card.innerHTML = `
+      <div class="${bgColorClass} w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+        <span class="text-lg font-bold ${textColorClass}">${classNum}</span>
+      </div>
+      <h3 class="text-lg font-bold text-gray-800 mb-2">Class ${classNum}</h3>
+      <p class="text-gray-600 text-sm">${getClassDescription(classNum)}</p>
+      <div class="mt-3">
+        <i class="fas fa-arrow-right ${textColorClass}"></i>
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+// Get class description based on class number
+function getClassDescription(classNum) {
+  if (classNum <= 5) {
+    return 'Basic Education';
+  } else if (classNum <= 8) {
+    return 'Middle Education';
+  } else if (classNum <= 10) {
+    return 'Board Preparation';
+  } else {
+    return 'Higher Secondary';
+  }
+}
+
+// Select school class
+function selectSchoolClass(classNum, levelData) {
+  currentClass = {
+    number: classNum,
+    level: currentSchoolLevel,
+    name: `Class ${classNum}`,
+    levelName: levelData.name
+  };
+  
+  // Set up school class information
+  setupSchoolClassInfo();
+  
+  // Go directly to hall ticket customization for school students
+  showSection('generator');
+}
+
+// Setup class information for school students
+function setupSchoolClassInfo() {
+  // Set class details for school students
+  const selectedDetails = document.getElementById('selectedDetails');
+  const selectedClassDetails = document.getElementById('selectedClassDetails');
+  
+  if (selectedDetails) {
+    selectedDetails.textContent = `${currentClass.levelName} - ${currentClass.name}`;
+  }
+  if (selectedClassDetails) {
+    selectedClassDetails.textContent = `${currentClass.levelName} - ${currentClass.name}`;
+  }
+  
+  // Update hall ticket customization for school students
+  updateSchoolHallTicketSettings();
+}
+
+// Update hall ticket settings for school students
+function updateSchoolHallTicketSettings() {
+  // Use school name if available
+  let institutionName = 'SCHOOL EDUCATION BOARD';
+  const schoolNameInput = document.getElementById('schoolName');
+  if (schoolNameInput && schoolNameInput.value) {
+    institutionName = schoolNameInput.value.toUpperCase();
+  }
+  
+  let examTitle = 'SCHOOL EXAMINATION HALL TICKET';
+  if (currentClass && currentClass.name) {
+    examTitle = `ADMISSION TICKET FOR ${currentClass.name.toUpperCase()} EXAMINATION`;
+  }
+  
+  ticketCustomization.institutionName = institutionName;
+  ticketCustomization.examTitle = examTitle;
+  
+  // Update form fields if they exist
+  const institutionInput = document.getElementById('institutionName');
+  const examTitleInput = document.getElementById('examTitle');
+  
+  if (institutionInput && !institutionInput.value) {
+    institutionInput.value = ticketCustomization.institutionName;
+  }
+  if (examTitleInput && !examTitleInput.value) {
+    examTitleInput.value = ticketCustomization.examTitle;
+  }
+}
+
 // Update class information preview
 function updateClassPreview() {
   const preview = document.getElementById('classInfoPreview');
@@ -4221,7 +5459,11 @@ function updateClassPreview() {
       <!-- Header -->
       <div class="text-center mb-6 pb-4 border-b-2 border-gray-200">
         <h2 class="text-xl font-bold text-blue-800 mb-2">CLASS INFORMATION PREVIEW</h2>
-        <p class="text-gray-600">${currentBranch?.name || 'Branch'} - ${currentYear?.name || 'Year'}</p>
+        <p class="text-gray-600">${
+          currentStudentType === 'general' ? (currentCourse?.name || 'Course') :
+          currentStudentType === 'school' ? (currentClass?.level || 'School Level') :
+          (currentBranch?.name || 'Branch')
+        } - ${currentStudentType === 'school' ? (currentClass?.name || 'Class') : (currentYear?.name || 'Year')}</p>
         <p class="text-sm text-gray-500">This information will appear on all hall tickets for this class</p>
       </div>
       
@@ -4275,23 +5517,264 @@ function updateClassPreview() {
         </div>
       </div>
       
+      <!-- School Information for School Students -->
+      ${currentStudentType === 'school' && classInformation.schoolInfo ? `
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+            <i class="fas fa-school mr-2 text-orange-600"></i>School Information
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            ${classInformation.schoolInfo.schoolName ? `
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-700">School Name:</span>
+                <span class="text-orange-600 font-semibold">${classInformation.schoolInfo.schoolName}</span>
+              </div>
+            ` : ''}
+            ${classInformation.schoolInfo.schoolBoard ? `
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-700">Board/Affiliation:</span>
+                <span class="text-orange-600 font-semibold">${classInformation.schoolInfo.schoolBoard.toUpperCase()}</span>
+              </div>
+            ` : ''}
+            ${classInformation.schoolInfo.schoolCode ? `
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-700">School Code:</span>
+                <span class="text-orange-600 font-mono font-bold">${classInformation.schoolInfo.schoolCode}</span>
+              </div>
+            ` : ''}
+            ${classInformation.schoolInfo.schoolLogo ? `
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-700">School Logo:</span>
+                <span class="text-green-600 font-semibold"><i class="fas fa-check mr-1"></i>Uploaded</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      ` : ''}
+      
       <!-- Instructions -->
       ${specialInstructions ? `
         <div class="mb-4">
           <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
             <i class="fas fa-exclamation-triangle mr-2 text-orange-600"></i>Special Instructions
           </h3>
-          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
-            <pre class="text-sm text-gray-700 whitespace-pre-wrap font-sans">${specialInstructions}</pre>
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r">
+            <div class="text-sm text-yellow-800 whitespace-pre-line">${specialInstructions}</div>
           </div>
         </div>
       ` : ''}
       
-      <!-- Footer Info -->
-      <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-        <p class="text-xs text-gray-500">Preview generated on ${dateStr}</p>
-        <p class="text-xs text-gray-400 mt-1">This information will be included in all hall tickets for this class</p>
+      <!-- Footer -->
+      <div class="text-center text-xs text-gray-500 pt-4 border-t border-gray-200">
+        Preview generated on ${dateStr} • This information will appear on all hall tickets
       </div>
     </div>
   `;
 }
+
+// Complete the missing JavaScript functions that are called by HTML buttons
+
+// These functions are called by HTML button onclick handlers but were missing
+
+// Initialize the application when DOM is loaded
+function initializeApp() {
+  console.log('Initializing EduConnect Hall Ticket Generator');
+  
+  // Load engineering branches from storage or defaults
+  loadBranchesFromStorage();
+  
+  // Initialize the current section
+  showSection('home');
+  
+  // Initialize hall ticket preview if we're in generator section
+  if (document.getElementById('hallTicketPreview')) {
+    updatePreview();
+  }
+}
+
+// Make sure all critical functions exist and work
+// Some functions might have been cut off or missing from the truncated file
+
+// Ensure showSection function works properly
+if (typeof showSection === 'undefined') {
+  function showSection(sectionId, skipHistory = false) {
+    console.log('Showing section:', sectionId);
+    
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+      section.classList.add('hidden');
+    });
+    
+    // Show the requested section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+      targetSection.classList.remove('hidden');
+      targetSection.classList.add('animate-fadeIn');
+    }
+    
+    // Update navigation history if not skipping
+    if (!skipHistory) {
+      if (currentSection !== sectionId) {
+        if (navigationHistory[navigationHistory.length - 1] !== sectionId) {
+          navigationHistory.push(sectionId);
+        }
+      }
+    }
+    
+    currentSection = sectionId;
+    
+    // Update back button visibility
+    updateBackButtonVisibility();
+    
+    // Special handling for specific sections
+    if (sectionId === 'engineering') {
+      populateEngineeringCards();
+    } else if (sectionId === 'generator') {
+      initializeHallTicketPreview();
+    }
+  }
+}
+
+// Ensure selectStudentType function exists
+if (typeof selectStudentType === 'undefined') {
+  function selectStudentType(type) {
+    console.log('Selected student type:', type);
+    currentStudentType = type;
+    
+    if (type === 'engineering') {
+      showSection('engineering');
+    } else if (type === 'general') {
+      showSection('general');
+    } else if (type === 'school') {
+      setupSchoolStudentForm();
+      showSection('classCustomization');
+    }
+  }
+}
+
+// Ensure updatePreview function exists
+if (typeof updatePreview === 'undefined') {
+  function updatePreview() {
+    console.log('Updating hall ticket preview');
+    
+    const preview = document.getElementById('hallTicketPreview');
+    if (!preview) return;
+    
+    const institutionName = document.getElementById('institutionName')?.value || 'Institution Name';
+    const examTitle = document.getElementById('examTitle')?.value || 'Examination';
+    
+    // Simple preview update
+    preview.innerHTML = `
+      <div class="hall-ticket p-6 border-2 border-gray-300 rounded-lg bg-white">
+        <div class="text-center mb-4">
+          <h1 class="text-xl font-bold text-blue-600">${institutionName}</h1>
+          <h2 class="text-lg font-semibold mt-2">HALL TICKET</h2>
+          <p class="text-sm mt-1">${examTitle}</p>
+        </div>
+        <div class="mt-4 p-4 bg-gray-50 rounded">
+          <p class="text-sm text-gray-600">Preview - Customize your hall ticket template using the options on the left</p>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Ensure mobile menu functions exist
+if (typeof toggleMobileMenu === 'undefined') {
+  function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (mobileMenu && menuBtn) {
+      const icon = menuBtn.querySelector('i');
+      
+      if (mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenu.classList.add('show');
+        if (icon) icon.className = 'fas fa-times text-xl';
+        document.body.style.overflow = 'hidden';
+      } else {
+        closeMobileMenu();
+      }
+    }
+  }
+}
+
+if (typeof closeMobileMenu === 'undefined') {
+  function closeMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (mobileMenu && menuBtn) {
+      const icon = menuBtn.querySelector('i');
+      
+      mobileMenu.classList.add('hidden');
+      mobileMenu.classList.remove('show');
+      if (icon) icon.className = 'fas fa-bars text-xl';
+      document.body.style.overflow = '';
+    }
+  }
+}
+
+// Ensure error handling functions exist
+if (typeof showError === 'undefined') {
+  function showError(message, duration = 5000) {
+    console.error(message);
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+    errorDiv.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i class="fas fa-exclamation-circle"></i>
+        <span class="text-sm">${message}</span>
+        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => {
+      if (errorDiv.parentElement) {
+        errorDiv.remove();
+      }
+    }, duration);
+  }
+}
+
+if (typeof showSuccess === 'undefined') {
+  function showSuccess(message, duration = 3000) {
+    console.log('Success:', message);
+    
+    const successDiv = document.createElement('div');
+    successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+    successDiv.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i class="fas fa-check-circle"></i>
+        <span class="text-sm">${message}</span>
+        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+      if (successDiv.parentElement) {
+        successDiv.remove();
+      }
+    }, duration);
+  }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // DOM is already loaded
+  initializeApp();
+}
+
+console.log('EduConnect Hall Ticket Generator JavaScript loaded successfully');

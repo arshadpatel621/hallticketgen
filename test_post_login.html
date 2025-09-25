@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Login Navigation Test - EduConnect</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .status-pass { color: #065f46; background: #d1fae5; border-color: #10b981; }
+        .status-fail { color: #991b1b; background: #fee2e2; border-color: #ef4444; }
+        .status-info { color: #1e40af; background: #dbeafe; border-color: #3b82f6; }
+        .test-result {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-cogs text-blue-600 mr-3"></i>
+                Post-Login Navigation Test
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Test suite to verify "Get Started" button functionality after login
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Navigation Test -->
+            <div class="test-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-route text-green-600 mr-2"></i>Navigation Test
+                </h2>
+                
+                <div class="space-y-3">
+                    <button onclick="testShowSection()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-play mr-2"></i>Test showSection('engineering')
+                    </button>
+                    
+                    <button onclick="testGetStartedButton()" class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-rocket mr-2"></i>Test Get Started Button
+                    </button>
+                    
+                    <button onclick="testBranchPopup()" class="w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-window-restore mr-2"></i>Test Branch Popup
+                    </button>
+                </div>
+                
+                <div id="navigationResult" class="mt-4"></div>
+            </div>
+
+            <!-- Component Test -->
+            <div class="test-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-puzzle-piece text-orange-600 mr-2"></i>Component Test
+                </h2>
+                
+                <div class="space-y-3">
+                    <button onclick="testEngineeringBranches()" class="w-full bg-teal-600 text-white px-4 py-3 rounded-lg hover:bg-teal-700 transition-colors">
+                        <i class="fas fa-graduation-cap mr-2"></i>Test Engineering Branches
+                    </button>
+                    
+                    <button onclick="testYearCards()" class="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-calendar mr-2"></i>Test Year Cards
+                    </button>
+                    
+                    <button onclick="checkAllElements()" class="w-full bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>Check All Elements
+                    </button>
+                </div>
+                
+                <div id="componentResult" class="mt-4"></div>
+            </div>
+
+            <!-- Quick Fix Tools -->
+            <div class="test-card lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-tools text-red-600 mr-2"></i>Quick Fix Tools
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-4">
+                    <button onclick="applyPostLoginFix()" class="bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-wrench mr-2"></i>Apply Post-Login Fix
+                    </button>
+                    
+                    <button onclick="reinitializeComponents()" class="bg-yellow-600 text-white px-4 py-3 rounded-lg hover:bg-yellow-700 transition-colors">
+                        <i class="fas fa-sync mr-2"></i>Reinitialize Components
+                    </button>
+                    
+                    <button onclick="forceShowEngineering()" class="bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>Force Show Engineering
+                    </button>
+                </div>
+                
+                <div id="fixResult" class="mt-4"></div>
+            </div>
+
+            <!-- Test Results -->
+            <div class="test-card lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>Comprehensive Test Results
+                </h2>
+                
+                <button onclick="runFullTest()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-lg font-semibold mb-4">
+                    <i class="fas fa-play-circle mr-2"></i>Run Complete Test Suite
+                </button>
+                
+                <div id="fullTestResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="index.html" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-home mr-2"></i>
+                Back to EduConnect
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const statusClass = `status-${type}`;
+            const iconMap = {
+                'pass': 'fa-check-circle',
+                'fail': 'fa-exclamation-circle',
+                'info': 'fa-info-circle'
+            };
+            
+            element.innerHTML = `
+                <div class="test-result ${statusClass}">
+                    <i class="fas ${iconMap[type]} mr-2"></i>${message}
+                </div>
+            `;
+        }
+
+        function testShowSection() {
+            console.log('Testing showSection function...');
+            
+            if (typeof window.showSection === 'function') {
+                try {
+                    const result = window.showSection('engineering');
+                    showResult('navigationResult', 
+                        `✅ showSection function exists and executed\nResult: ${result}\nCheck console for detailed logs.`, 
+                        'pass'
+                    );
+                } catch (error) {
+                    showResult('navigationResult', 
+                        `❌ showSection function failed: ${error.message}`, 
+                        'fail'
+                    );
+                }
+            } else {
+                showResult('navigationResult', 
+                    '❌ showSection function not found. The post-login fix may not be loaded.', 
+                    'fail'
+                );
+            }
+        }
+
+        function testGetStartedButton() {
+            console.log('Testing Get Started button...');
+            
+            // Look for Get Started buttons
+            const getStartedButtons = document.querySelectorAll('button');
+            let found = false;
+            
+            Array.from(getStartedButtons).forEach(button => {
+                if (button.textContent.includes('Get Started')) {
+                    found = true;
+                    button.click();
+                }
+            });
+            
+            if (found) {
+                showResult('navigationResult', 
+                    '✅ Get Started button found and clicked. Check if engineering section appeared.', 
+                    'pass'
+                );
+            } else {
+                showResult('navigationResult', 
+                    '⚠️ Get Started button not found on this test page. Test on main application.', 
+                    'info'
+                );
+            }
+        }
+
+        function testBranchPopup() {
+            console.log('Testing branch popup...');
+            
+            if (typeof window.openBranchPopup === 'function') {
+                try {
+                    window.openBranchPopup();
+                    showResult('navigationResult', 
+                        '✅ openBranchPopup function exists and was called. Check if popup appeared.', 
+                        'pass'
+                    );
+                } catch (error) {
+                    showResult('navigationResult', 
+                        `❌ openBranchPopup failed: ${error.message}`, 
+                        'fail'
+                    );
+                }
+            } else {
+                showResult('navigationResult', 
+                    '❌ openBranchPopup function not found. May need to load main application first.', 
+                    'fail'
+                );
+            }
+        }
+
+        function testEngineeringBranches() {
+            console.log('Testing engineering branches data...');
+            
+            if (typeof window.engineeringBranches !== 'undefined' && window.engineeringBranches.length > 0) {
+                showResult('componentResult', 
+                    `✅ Engineering branches loaded: ${window.engineeringBranches.length} branches found\nFirst branch: ${window.engineeringBranches[0].name}`, 
+                    'pass'
+                );
+            } else {
+                showResult('componentResult', 
+                    '❌ Engineering branches not loaded or empty.', 
+                    'fail'
+                );
+            }
+        }
+
+        function testYearCards() {
+            console.log('Testing year cards...');
+            
+            if (typeof window.populateYearCards === 'function') {
+                showResult('componentResult', 
+                    '✅ populateYearCards function exists and can be called.', 
+                    'pass'
+                );
+            } else {
+                showResult('componentResult', 
+                    '❌ populateYearCards function not found.', 
+                    'fail'
+                );
+            }
+        }
+
+        function checkAllElements() {
+            console.log('Checking for required DOM elements...');
+            
+            const requiredElements = [
+                'mainApp', 'engineering', 'branchPopup', 'yearSelection', 
+                'generator', 'branchGrid', 'yearCards'
+            ];
+            
+            let results = [];
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                results.push(`${id}: ${element ? '✅ Found' : '❌ Missing'}`);
+            });
+            
+            showResult('componentResult', 
+                `Element Check Results:\n${results.join('\n')}`, 
+                'info'
+            );
+        }
+
+        function applyPostLoginFix() {
+            console.log('Applying post-login fix...');
+            
+            if (typeof window.postLoginFix !== 'undefined') {
+                try {
+                    window.postLoginFix.initializePostLoginFix();
+                    showResult('fixResult', 
+                        '✅ Post-login fix applied successfully!', 
+                        'pass'
+                    );
+                } catch (error) {
+                    showResult('fixResult', 
+                        `❌ Failed to apply post-login fix: ${error.message}`, 
+                        'fail'
+                    );
+                }
+            } else {
+                showResult('fixResult', 
+                    '❌ Post-login fix not available. Make sure post_login_fix.js is loaded.', 
+                    'fail'
+                );
+            }
+        }
+
+        function reinitializeComponents() {
+            console.log('Reinitializing components...');
+            
+            try {
+                // Try to reinitialize engineering branches
+                if (typeof window.postLoginFix !== 'undefined') {
+                    window.postLoginFix.initializePostLoginFix();
+                }
+                
+                showResult('fixResult', 
+                    '✅ Components reinitialized successfully!', 
+                    'pass'
+                );
+            } catch (error) {
+                showResult('fixResult', 
+                    `❌ Failed to reinitialize: ${error.message}`, 
+                    'fail'
+                );
+            }
+        }
+
+        function forceShowEngineering() {
+            console.log('Force showing engineering section...');
+            
+            if (typeof window.postLoginFix !== 'undefined') {
+                try {
+                    window.postLoginFix.enhancedShowSection('engineering');
+                    showResult('fixResult', 
+                        '✅ Forced engineering section to show!', 
+                        'pass'
+                    );
+                } catch (error) {
+                    showResult('fixResult', 
+                        `❌ Failed to force show: ${error.message}`, 
+                        'fail'
+                    );
+                }
+            } else {
+                showResult('fixResult', 
+                    '❌ Enhanced showSection not available.', 
+                    'fail'
+                );
+            }
+        }
+
+        function runFullTest() {
+            console.log('Running complete test suite...');
+            
+            let results = [];
+            
+            // Test 1: Function availability
+            results.push('=== FUNCTION AVAILABILITY TEST ===');
+            results.push(`showSection: ${typeof window.showSection === 'function' ? '✅' : '❌'}`);
+            results.push(`openBranchPopup: ${typeof window.openBranchPopup === 'function' ? '✅' : '❌'}`);
+            results.push(`populateYearCards: ${typeof window.populateYearCards === 'function' ? '✅' : '❌'}`);
+            results.push(`postLoginFix: ${typeof window.postLoginFix !== 'undefined' ? '✅' : '❌'}`);
+            
+            // Test 2: Data availability
+            results.push('\n=== DATA AVAILABILITY TEST ===');
+            results.push(`engineeringBranches: ${typeof window.engineeringBranches !== 'undefined' && window.engineeringBranches.length > 0 ? '✅ ' + window.engineeringBranches.length + ' items' : '❌'}`);
+            
+            // Test 3: DOM elements
+            results.push('\n=== DOM ELEMENTS TEST ===');
+            const requiredElements = ['mainApp', 'engineering', 'branchPopup', 'yearSelection'];
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                results.push(`${id}: ${element ? '✅' : '❌'}`);
+            });
+            
+            // Test 4: Console errors check
+            results.push('\n=== CONSOLE CHECK ===');
+            results.push('Check browser console for any errors or warnings.');
+            results.push('Look for messages starting with "🔧", "✅", or "❌"');
+            
+            // Test 5: Recommendations
+            results.push('\n=== RECOMMENDATIONS ===');
+            if (typeof window.showSection !== 'function') {
+                results.push('❌ CRITICAL: showSection function missing - main navigation broken');
+            }
+            if (typeof window.postLoginFix === 'undefined') {
+                results.push('⚠️ WARNING: Post-login fix not loaded - may cause navigation issues');
+            }
+            if (typeof window.engineeringBranches === 'undefined') {
+                results.push('⚠️ WARNING: Engineering branches not initialized');
+            }
+            
+            showResult('fullTestResult', results.join('\n'), 'info');
+        }
+
+        // Auto-run basic checks on page load
+        window.addEventListener('load', function() {
+            console.log('Post-login test page loaded');
+            
+            setTimeout(() => {
+                showResult('fullTestResult', 
+                    'Test page loaded successfully!\n\nClick "Run Complete Test Suite" for detailed diagnostics.\n\nThis page helps verify that the "Get Started" button works after login.', 
+                    'info'
+                );
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

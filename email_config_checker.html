@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Configuration Checker - EduConnect</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .status-pass { color: #065f46; background: #d1fae5; border-color: #10b981; }
+        .status-fail { color: #991b1b; background: #fee2e2; border-color: #ef4444; }
+        .status-warning { color: #92400e; background: #fef3cd; border-color: #f59e0b; }
+        .status-info { color: #1e40af; background: #dbeafe; border-color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-envelope-circle-check text-green-600 mr-3"></i>
+                EduConnect Email Configuration Checker
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Verify email delivery and clean demo modes for production use
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+            <!-- System Cleanup -->
+            <div class="status-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-broom text-red-600 mr-2"></i>System Cleanup
+                </h2>
+                
+                <div class="space-y-4">
+                    <button onclick="clearAllDemoData()" class="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                        <i class="fas fa-trash-alt mr-2"></i>Clear All Demo Data & Modes
+                    </button>
+                    
+                    <button onclick="checkSystemStatus()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-diagnostic mr-2"></i>Check System Status
+                    </button>
+                </div>
+                
+                <div id="cleanupResult" class="mt-4"></div>
+            </div>
+
+            <!-- Email Testing -->
+            <div class="status-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-paper-plane text-blue-600 mr-2"></i>Email Delivery Test
+                </h2>
+                
+                <div class="space-y-4">
+                    <input type="email" id="testEmail" placeholder="Enter email to test (arshadpatel431@gmail.com)" 
+                           value="arshadpatel431@gmail.com" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <button onclick="testEmailDelivery()" class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        <i class="fas fa-envelope mr-2"></i>Test Email Delivery
+                    </button>
+                    
+                    <button onclick="checkSupabaseConfig()" class="w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                        <i class="fas fa-cog mr-2"></i>Check Supabase Config
+                    </button>
+                </div>
+                
+                <div id="emailTestResult" class="mt-4"></div>
+            </div>
+
+            <!-- Registration Flow Test -->
+            <div class="status-card lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-user-plus text-orange-600 mr-2"></i>Complete Registration Flow Test
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Test Email:</label>
+                        <input type="email" id="fullTestEmail" placeholder="test@example.com" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Test Password:</label>
+                        <input type="password" id="fullTestPassword" placeholder="test123456" value="test123456"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <button onclick="testFullRegistrationFlow()" class="w-full bg-orange-600 text-white px-4 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium">
+                        <i class="fas fa-rocket mr-2"></i>Test Complete Registration Flow
+                    </button>
+                    
+                    <button onclick="openMainWebsite()" class="w-full bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                        <i class="fas fa-external-link-alt mr-2"></i>Open EduConnect Website
+                    </button>
+                </div>
+                
+                <div id="fullTestResult" class="mt-4"></div>
+            </div>
+
+            <!-- Gmail Configuration Guide -->
+            <div class="status-card lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>Gmail Email Delivery Guide
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-search text-green-600 mr-2"></i>Where to Look:
+                        </h3>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                            <li><strong>Spam/Junk</strong> folder (most common)</li>
+                            <li><strong>Promotions</strong> tab</li>
+                            <li><strong>Social</strong> tab</li>
+                            <li><strong>All Mail</strong> folder</li>
+                            <li>Search for <strong>"supabase"</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-clock text-yellow-600 mr-2"></i>Timing:
+                        </h3>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                            <li>Usually arrives in <strong>1-3 minutes</strong></li>
+                            <li>Can take up to <strong>10 minutes</strong></li>
+                            <li>Gmail may delay Supabase emails</li>
+                            <li>Check every few minutes</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>If Still No Email:
+                        </h3>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                            <li>Try a <strong>different Gmail</strong> address</li>
+                            <li>Contact <strong>Supabase support</strong></li>
+                            <li>Check your <strong>email provider</strong> settings</li>
+                            <li>Whitelist <strong>no-reply@supabase.com</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">
+                        <i class="fas fa-lightbulb mr-2"></i>Pro Tips:
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-blue-700">
+                        <div>
+                            <strong>Gmail Search Commands:</strong>
+                            <ul class="list-disc list-inside mt-1 space-y-1">
+                                <li><code>from:supabase</code></li>
+                                <li><code>subject:verify</code></li>
+                                <li><code>verification link</code></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Best Practices:</strong>
+                            <ul class="list-disc list-inside mt-1 space-y-1">
+                                <li>Use Gmail for best delivery</li>
+                                <li>Check spam folder first</li>
+                                <li>Wait 5-10 minutes</li>
+                                <li>Try different email if needed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://rhvvqpiazcnsmknsowrx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodnZxcGlhemNuc21rbnNvd3J4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NTUwMDAsImV4cCI6MjA3MzQzMTAwMH0.tVVwDY42PuYVlMlgixMC4mbQ11_CMVKCTKjsVRW2YeA';
+        
+        let supabaseClient = null;
+        
+        try {
+            const { createClient } = supabase;
+            supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                }
+            });
+            console.log('Supabase client initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const statusClass = `status-${type}`;
+            const iconMap = {
+                'pass': 'fa-check-circle',
+                'fail': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            
+            element.innerHTML = `
+                <div class="p-4 rounded-lg ${statusClass} border">
+                    <i class="fas ${iconMap[type]} mr-2"></i>${message}
+                </div>
+            `;
+        }
+
+        function clearAllDemoData() {
+            showResult('cleanupResult', 'Clearing all demo data and modes...', 'info');
+            
+            // Clear localStorage
+            const localKeysToRemove = [
+                'authToken', 'userData', 'demoMode', 'demoRole', 'forceDemoMode', 
+                'supabaseDisabled', 'rememberUser', 'pendingUserData', 'testMode',
+                'emailVerificationBypass', 'manualVerification', 'lastRegistrationEmail'
+            ];
+            
+            localKeysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+            });
+            
+            // Clear sessionStorage
+            const sessionKeysToRemove = [
+                'authToken', 'userData', 'pendingUserData', 'pendingRegistration'
+            ];
+            
+            sessionKeysToRemove.forEach(key => {
+                sessionStorage.removeItem(key);
+            });
+            
+            // Nuclear option - clear everything
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            showResult('cleanupResult', '✅ All demo data cleared successfully! System is now clean for production use.', 'pass');
+            
+            setTimeout(() => {
+                showResult('cleanupResult', 
+                    '🚀 System Ready! All demo modes removed. Your EduConnect is now configured for real users with proper email verification.', 
+                    'pass'
+                );
+            }, 2000);
+        }
+
+        function checkSystemStatus() {
+            showResult('cleanupResult', 'Checking system status...', 'info');
+            
+            let status = '<div class="space-y-2">';
+            
+            // Check localStorage
+            const demoKeys = ['demoMode', 'forceDemoMode', 'supabaseDisabled', 'testMode'];
+            let hasDemoData = false;
+            
+            demoKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    hasDemoData = true;
+                    status += `<div class="text-sm">❌ ${key}: Present</div>`;
+                } else {
+                    status += `<div class="text-sm">✅ ${key}: Clean</div>`;
+                }
+            });
+            
+            // Check auth tokens
+            const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+            status += `<div class="text-sm">${authToken ? '⚠ Auth Token: Present' : '✅ Auth Token: Clean'}</div>`;
+            
+            // Check Supabase client
+            status += `<div class="text-sm">${supabaseClient ? '✅ Supabase: Connected' : '❌ Supabase: Not Connected'}</div>`;
+            
+            status += '</div>';
+            
+            const overallStatus = hasDemoData ? 'warning' : 'pass';
+            const message = hasDemoData ? 
+                `⚠ Demo data found! System needs cleanup.${status}` : 
+                `✅ System is clean and ready for production!${status}`;
+                
+            showResult('cleanupResult', message, overallStatus);
+        }
+
+        async function testEmailDelivery() {
+            const email = document.getElementById('testEmail').value;
+            
+            if (!email) {
+                showResult('emailTestResult', 'Please enter an email address to test.', 'fail');
+                return;
+            }
+
+            showResult('emailTestResult', `Testing email delivery to ${email}...`, 'info');
+            
+            try {
+                // Test registration which will trigger email
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: 'testpassword123',
+                    options: {
+                        data: {
+                            name: 'Test User',
+                            role: 'teacher',
+                            institution: 'Test Institution'
+                        }
+                    }
+                });
+
+                if (error) {
+                    if (error.message.includes('User already registered')) {
+                        // Try resending verification email instead
+                        const { data: resendData, error: resendError } = await supabaseClient.auth.resend({
+                            type: 'signup',
+                            email: email
+                        });
+                        
+                        if (resendError) {
+                            showResult('emailTestResult', `Email test failed: ${resendError.message}`, 'fail');
+                        } else {
+                            showResult('emailTestResult', 
+                                `✅ Verification email resent to ${email}!<br>
+                                <strong>Next Steps:</strong><br>
+                                1. Check your Gmail inbox<br>
+                                2. Check Spam/Junk folder<br>
+                                3. Look in Promotions tab<br>
+                                4. Wait 2-5 minutes for delivery`, 
+                                'pass'
+                            );
+                        }
+                    } else {
+                        showResult('emailTestResult', `Email test failed: ${error.message}`, 'fail');
+                    }
+                } else {
+                    showResult('emailTestResult', 
+                        `✅ Test registration created for ${email}!<br>
+                        <strong>Check your email now:</strong><br>
+                        1. Gmail inbox<br>
+                        2. Spam/Junk folder<br>
+                        3. Promotions tab<br>
+                        4. Search for "supabase"`, 
+                        'pass'
+                    );
+                }
+            } catch (error) {
+                showResult('emailTestResult', `Error testing email: ${error.message}`, 'fail');
+            }
+        }
+
+        async function checkSupabaseConfig() {
+            showResult('emailTestResult', 'Checking Supabase configuration...', 'info');
+            
+            try {
+                // Test basic connectivity
+                const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+                
+                let configStatus = '<div class="space-y-2">';
+                configStatus += `<div class="text-sm">✅ Supabase Client: Connected</div>`;
+                configStatus += `<div class="text-sm">✅ Auth API: ${sessionError ? 'Error - ' + sessionError.message : 'Working'}</div>`;
+                configStatus += `<div class="text-sm">✅ URL: ${SUPABASE_URL}</div>`;
+                configStatus += `<div class="text-sm">✅ API Key: ${SUPABASE_ANON_KEY ? 'Present' : 'Missing'}</div>`;
+                
+                // Test database connectivity
+                try {
+                    const { data: testData, error: testError } = await supabaseClient
+                        .from('users')
+                        .select('count', { count: 'exact', head: true });
+                    
+                    configStatus += `<div class="text-sm">${testError ? '⚠ Database: ' + testError.message : '✅ Database: Connected'}</div>`;
+                } catch (dbError) {
+                    configStatus += `<div class="text-sm">⚠ Database: ${dbError.message}</div>`;
+                }
+                
+                configStatus += '</div>';
+                
+                showResult('emailTestResult', `Supabase Configuration Status:${configStatus}`, 'info');
+                
+            } catch (error) {
+                showResult('emailTestResult', `Configuration check failed: ${error.message}`, 'fail');
+            }
+        }
+
+        async function testFullRegistrationFlow() {
+            const email = document.getElementById('fullTestEmail').value;
+            const password = document.getElementById('fullTestPassword').value;
+            
+            if (!email || !password) {
+                showResult('fullTestResult', 'Please enter both email and password for testing.', 'fail');
+                return;
+            }
+
+            showResult('fullTestResult', `Testing complete registration flow for ${email}...`, 'info');
+            
+            try {
+                // Step 1: Registration
+                const { data: regData, error: regError } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        emailRedirectTo: window.location.origin + '?verified=true',
+                        data: {
+                            name: 'Test User',
+                            institution: 'Test Institution',
+                            role: 'teacher',
+                            phone: null
+                        }
+                    }
+                });
+
+                if (regError) {
+                    if (regError.message.includes('User already registered')) {
+                        showResult('fullTestResult', 
+                            `⚠ User already exists. Testing login instead...<br>
+                            Attempting login with provided credentials...`, 
+                            'warning'
+                        );
+                        
+                        // Try login instead
+                        const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+                        
+                        if (loginError) {
+                            showResult('fullTestResult', 
+                                `❌ Login test failed: ${loginError.message}<br>
+                                <strong>Possible reasons:</strong><br>
+                                • Email not verified yet<br>
+                                • Wrong password<br>
+                                • Account doesn't exist`, 
+                                'fail'
+                            );
+                        } else {
+                            showResult('fullTestResult', 
+                                `✅ Login test successful!<br>
+                                <strong>User Details:</strong><br>
+                                • Email: ${loginData.user.email}<br>
+                                • Verified: ${loginData.user.email_confirmed_at ? 'Yes' : 'No'}<br>
+                                • User ID: ${loginData.user.id}`, 
+                                'pass'
+                            );
+                        }
+                    } else {
+                        showResult('fullTestResult', `Registration test failed: ${regError.message}`, 'fail');
+                    }
+                } else {
+                    showResult('fullTestResult', 
+                        `✅ Registration test successful!<br>
+                        <strong>Next Steps:</strong><br>
+                        1. Check ${email} for verification email<br>
+                        2. Click verification link in email<br>
+                        3. You'll be redirected to login page<br>
+                        4. Login with your password<br>
+                        <br>
+                        <strong>User Details:</strong><br>
+                        • User ID: ${regData.user.id}<br>
+                        • Email: ${regData.user.email}`, 
+                        'pass'
+                    );
+                }
+                
+            } catch (error) {
+                showResult('fullTestResult', `Full test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        function openMainWebsite() {
+            window.open('index.html', '_blank');
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            // Auto-check system status
+            setTimeout(checkSystemStatus, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -199,6 +199,116 @@ body {
 
 /* Mobile menu improvements */
 .mobile-menu {
+  transition: all 0.3s ease;
+  transform: translateY(-100%);
+}
+
+.mobile-menu.show {
+  transform: translateY(0);
+}
+
+/* Ensure all buttons are clickable and visible */
+.btn {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Fix any potential z-index issues */
+.btn:hover {
+  z-index: 20;
+}
+
+/* Ensure clickable elements have proper cursor */
+[onclick], .cursor-pointer, .card-hover {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Fix potential overlay issues */
+.fixed {
+  pointer-events: auto;
+}
+
+/* Ensure navigation links work */
+.nav-link {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Student type selection cards */
+.student-type-card {
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* Prevent text selection on clickable elements */
+.btn, .card-hover, [onclick] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Mobile touch improvements */
+@media (hover: none) and (pointer: coarse) {
+  .btn {
+    padding: 14px 24px;
+    font-size: 16px;
+  }
+  
+  .card-hover {
+    transition: none;
+  }
+  
+  .card-hover:active {
+    transform: scale(0.98);
+    background-color: rgba(59, 130, 246, 0.05);
+  }
+}
+
+/* Debug styles - remove after testing */
+.btn-debug {
+  border: 2px solid red !important;
+  background-color: yellow !important;
+  color: black !important;
+}
+
+/* Ensure sections are properly displayed */
+.section {
+  min-height: 100vh;
+  padding-top: 2rem;
+}
+
+.section.hidden {
+  display: none !important;
+}
+
+/* Fix any potential overlay or positioning issues */
+body {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ensure proper stacking context */
+nav {
+  z-index: 50;
+}
+
+.modal {
+  z-index: 100;
+}
+
+.notification {
+  z-index: 1000;
+}
   position: fixed;
   top: 64px;
   left: 0;

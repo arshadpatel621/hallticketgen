@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;family=Poppins:wght@300;400;500;600;700;800;900"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <title>EduConnect - Professional Hall Ticket Generator</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3ccircle cx='50' cy='50' r='45' fill='%234F46E5'/%3e%3ctext x='50' y='60' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-size='40' font-weight='bold'%3eE%3c/text%3e%3c/svg%3e" />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="bg-gray-50">
+    <!-- Main Application (shown by default) -->
+    <div id="mainApp" class="min-h-screen flex flex-col">
+      <!-- Header -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 flex items-center">
+                <div class="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                  <i class="fas fa-graduation-cap text-white"></i>
+                </div>
+                <span class="ml-2 text-xl font-bold text-gray-900">EduConnect</span>
+              </div>
+              <nav class="ml-6 flex space-x-4">
+                <a href="#" onclick="showDashboard()" class="nav-link px-3 py-2 rounded-md text-sm font-medium bg-blue-50 text-blue-700">Dashboard</a>
+                <a href="#" onclick="showBranches()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Branches</a>
+                <a href="#" onclick="showGeneral()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">General</a>
+                <a href="#" onclick="showClasses()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Classes</a>
+                <a href="#" onclick="showStudents()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Students</a>
+                <a href="#" onclick="showHallTickets()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Hall Tickets</a>
+              </nav>
+            </div>
+            <div class="flex items-center">
+              <div class="ml-3 relative">
+                <div class="flex items-center space-x-3">
+                  <button onclick="showSettings()" class="p-1 rounded-full text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <i class="fas fa-cog text-xl"></i>
+                  </button>
+                  <div class="flex items-center">
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white font-medium text-sm" id="userAvatar">
+                      U
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-gray-700 hidden sm:block" id="userName">Loading...</span>
+                    <button onclick="logout()" class="ml-4 text-red-600 hover:text-red-800 text-sm font-medium">
+                      <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-1 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <!-- Dashboard Content -->
+          <div id="dashboardSection" class="section-content">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p class="mt-1 text-sm text-gray-500">Welcome to EduConnect Hall Ticket Generator</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                      <i class="fas fa-building text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <dt class="text-sm font-medium text-gray-500 truncate">Branches</dt>
+                      <dd class="text-2xl font-semibold text-gray-900" id="branchCount">0</dd>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                      <i class="fas fa-users-class text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <dt class="text-sm font-medium text-gray-500 truncate">Classes</dt>
+                      <dd class="text-2xl font-semibold text-gray-900" id="classCount">0</dd>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                      <i class="fas fa-user-graduate text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <dt class="text-sm font-medium text-gray-500 truncate">Students</dt>
+                      <dd class="text-2xl font-semibold text-gray-900" id="studentCount">0</dd>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                      <i class="fas fa-ticket-alt text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <dt class="text-sm font-medium text-gray-500 truncate">Hall Tickets</dt>
+                      <dd class="text-2xl font-semibold text-gray-900" id="ticketCount">0</dd>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+              <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onclick="showBranches()" class="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                  <i class="fas fa-building text-blue-600 text-2xl mb-2"></i>
+                  <span class="text-sm font-medium text-blue-700">Manage Branches</span>
+                </button>
+                <button onclick="showClasses()" class="flex flex-col items-center justify-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                  <i class="fas fa-users-class text-green-600 text-2xl mb-2"></i>
+                  <span class="text-sm font-medium text-green-700">Manage Classes</span>
+                </button>
+                <button onclick="showStudents()" class="flex flex-col items-center justify-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                  <i class="fas fa-user-graduate text-purple-600 text-2xl mb-2"></i>
+                  <span class="text-sm font-medium text-purple-700">Manage Students</span>
+                </button>
+                <button onclick="showHallTickets()" class="flex flex-col items-center justify-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+                  <i class="fas fa-ticket-alt text-yellow-600 text-2xl mb-2"></i>
+                  <span class="text-sm font-medium text-yellow-700">Generate Tickets</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white shadow rounded-lg p-6">
+              <h2 class="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
+              <div class="flow-root">
+                <ul class="divide-y divide-gray-200">
+                  <li class="py-4">
+                    <div class="flex items-center space-x-4">
+                      <div class="flex-shrink-0">
+                        <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <i class="fas fa-building text-blue-600"></i>
+                        </div>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900">System initialized</p>
+                        <p class="text-sm text-gray-500">Welcome to EduConnect Hall Ticket Generator</p>
+                      </div>
+                      <div class="flex-shrink-0 text-sm text-gray-500">
+                        Just now
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other sections will be loaded here -->
+          <div id="branchesSection" class="section-content hidden">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">Branch Management</h1>
+              <p class="mt-1 text-sm text-gray-500">Manage academic branches and departments</p>
+            </div>
+            <div class="bg-white shadow rounded-lg p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">Branches</h2>
+                <button onclick="showAddBranchModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-plus mr-2"></i>Add Branch
+                </button>
+              </div>
+              <div id="branchesList" class="mt-4">
+                <p class="text-gray-500 text-center py-8">Loading branches...</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="classesSection" class="section-content hidden">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">Class Management</h1>
+              <p class="mt-1 text-sm text-gray-500">Manage academic classes and sections</p>
+            </div>
+            <div class="bg-white shadow rounded-lg p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">Classes</h2>
+                <button onclick="showAddClassModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-plus mr-2"></i>Add Class
+                </button>
+              </div>
+              <div id="classesList" class="mt-4">
+                <p class="text-gray-500 text-center py-8">Loading classes...</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="studentsSection" class="section-content hidden">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">Student Management</h1>
+              <p class="mt-1 text-sm text-gray-500">Manage student records and information</p>
+            </div>
+            <div class="bg-white shadow rounded-lg p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">Students</h2>
+                <div class="flex space-x-2">
+                  <button onclick="showImportStudentsModal()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                    <i class="fas fa-file-import mr-2"></i>Import
+                  </button>
+                  <button onclick="showAddStudentModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Add Student
+                  </button>
+                </div>
+              </div>
+              <div id="studentsList" class="mt-4">
+                <p class="text-gray-500 text-center py-8">Loading students...</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="hallTicketsSection" class="section-content hidden">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">Hall Ticket Generator</h1>
+              <p class="mt-1 text-sm text-gray-500">Create and manage hall tickets for examinations</p>
+            </div>
+            <div class="bg-white shadow rounded-lg p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">Generate Hall Tickets</h2>
+              </div>
+              <div class="mt-4">
+                <p class="text-gray-500 text-center py-8">Hall ticket generation interface will appear here</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- General Section -->
+          <div id="generalSection" class="section-content hidden">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">General Education Management</h1>
+              <p class="mt-1 text-sm text-gray-500">Manage general school classes from grades 1-10 and grade 12</p>
+            </div>
+
+            <!-- General Classes Overview -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <i class="fas fa-chalkboard-teacher text-green-600 text-xl"></i>
+                  </div>
+                  <div class="ml-4">
+                    <dt class="text-sm font-medium text-gray-500 truncate">Primary Classes</dt>
+                    <dd class="text-2xl font-semibold text-gray-900">5</dd>
+                    <p class="text-xs text-gray-500">Grades 1-5</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <i class="fas fa-book-reader text-blue-600 text-xl"></i>
+                  </div>
+                  <div class="ml-4">
+                    <dt class="text-sm font-medium text-gray-500 truncate">Middle Classes</dt>
+                    <dd class="text-2xl font-semibold text-gray-900">5</dd>
+                    <p class="text-xs text-gray-500">Grades 6-10</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <i class="fas fa-graduation-cap text-purple-600 text-xl"></i>
+                  </div>
+                  <div class="ml-4">
+                    <dt class="text-sm font-medium text-gray-500 truncate">Senior Secondary</dt>
+                    <dd class="text-2xl font-semibold text-gray-900">1</dd>
+                    <p class="text-xs text-gray-500">Grade 12</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- General Class Information Section -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">General Class Information</h2>
+                <div class="flex space-x-2">
+                  <button onclick="addGeneralClass()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Add Class
+                  </button>
+                  <button onclick="refreshGeneralClasses()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Grade Filter -->
+              <div class="mb-4">
+                <div class="flex flex-wrap gap-2">
+                  <button onclick="filterGeneralClasses('all')" class="grade-filter-btn active px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800">All Grades</button>
+                  <button onclick="filterGeneralClasses('1-5')" class="grade-filter-btn px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">Grades 1-5</button>
+                  <button onclick="filterGeneralClasses('6-10')" class="grade-filter-btn px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">Grades 6-10</button>
+                  <button onclick="filterGeneralClasses('12')" class="grade-filter-btn px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">Grade 12</button>
+                </div>
+              </div>
+              
+              <!-- Classes Grid -->
+              <div id="generalClassesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Sample Classes -->
+                <div class="class-card border rounded-lg p-4 hover:shadow-lg transition-shadow" data-grade="1">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold text-gray-900">Grade 1A</h3>
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-2">Students: 25</p>
+                  <p class="text-sm text-gray-600 mb-3">Class Teacher: Ms. Sarah</p>
+                  <div class="flex space-x-2">
+                    <button onclick="viewClassDetails('1A')" class="text-blue-600 hover:text-blue-800 text-sm">
+                      <i class="fas fa-eye mr-1"></i>View
+                    </button>
+                    <button onclick="editGeneralClass('1A')" class="text-yellow-600 hover:text-yellow-800 text-sm">
+                      <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="class-card border rounded-lg p-4 hover:shadow-lg transition-shadow" data-grade="5">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold text-gray-900">Grade 5B</h3>
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-2">Students: 28</p>
+                  <p class="text-sm text-gray-600 mb-3">Class Teacher: Mr. John</p>
+                  <div class="flex space-x-2">
+                    <button onclick="viewClassDetails('5B')" class="text-blue-600 hover:text-blue-800 text-sm">
+                      <i class="fas fa-eye mr-1"></i>View
+                    </button>
+                    <button onclick="editGeneralClass('5B')" class="text-yellow-600 hover:text-yellow-800 text-sm">
+                      <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="class-card border rounded-lg p-4 hover:shadow-lg transition-shadow" data-grade="10">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold text-gray-900">Grade 10A</h3>
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-2">Students: 32</p>
+                  <p class="text-sm text-gray-600 mb-3">Class Teacher: Dr. Smith</p>
+                  <div class="flex space-x-2">
+                    <button onclick="viewClassDetails('10A')" class="text-blue-600 hover:text-blue-800 text-sm">
+                      <i class="fas fa-eye mr-1"></i>View
+                    </button>
+                    <button onclick="editGeneralClass('10A')" class="text-yellow-600 hover:text-yellow-800 text-sm">
+                      <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="class-card border rounded-lg p-4 hover:shadow-lg transition-shadow" data-grade="12">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold text-gray-900">Grade 12 Science</h3>
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-2">Students: 35</p>
+                  <p class="text-sm text-gray-600 mb-3">Class Teacher: Prof. Johnson</p>
+                  <div class="flex space-x-2">
+                    <button onclick="viewClassDetails('12S')" class="text-blue-600 hover:text-blue-800 text-sm">
+                      <i class="fas fa-eye mr-1"></i>View
+                    </button>
+                    <button onclick="editGeneralClass('12S')" class="text-yellow-600 hover:text-yellow-800 text-sm">
+                      <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bulk Subject Management Section -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">Bulk Subject Management</h2>
+                <button onclick="showBulkSubjectModal()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                  <i class="fas fa-tasks mr-2"></i>Manage Subjects
+                </button>
+              </div>
+              
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Current Subjects Overview -->
+                <div>
+                  <h3 class="text-md font-medium text-gray-800 mb-3">Subject Distribution</h3>
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <span class="text-sm font-medium">Primary (1-5)</span>
+                      <span class="text-sm text-gray-600">6 subjects</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <span class="text-sm font-medium">Middle (6-10)</span>
+                      <span class="text-sm text-gray-600">8 subjects</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <span class="text-sm font-medium">Senior (12)</span>
+                      <span class="text-sm text-gray-600">12 subjects</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div>
+                  <h3 class="text-md font-medium text-gray-800 mb-3">Quick Actions</h3>
+                  <div class="space-y-2">
+                    <button onclick="addSubjectToGrades()" class="w-full text-left p-2 bg-blue-50 rounded hover:bg-blue-100 transition-colors text-sm">
+                      <i class="fas fa-plus text-blue-600 mr-2"></i>Add Subject to Multiple Grades
+                    </button>
+                    <button onclick="updateSubjectAcrossGrades()" class="w-full text-left p-2 bg-yellow-50 rounded hover:bg-yellow-100 transition-colors text-sm">
+                      <i class="fas fa-edit text-yellow-600 mr-2"></i>Update Subject Across Grades
+                    </button>
+                    <button onclick="removeSubjectFromGrades()" class="w-full text-left p-2 bg-red-50 rounded hover:bg-red-100 transition-colors text-sm">
+                      <i class="fas fa-trash text-red-600 mr-2"></i>Remove Subject from Grades
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PDF Management Section -->
+            <div class="bg-white shadow rounded-lg p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium text-gray-900">PDF Generation & Management</h2>
+                <div class="flex space-x-2">
+                  <button onclick="generateClassReportPDF()" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-file-pdf mr-2"></i>Class Reports
+                  </button>
+                  <button onclick="generateHallTicketsPDF()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                    <i class="fas fa-ticket-alt mr-2"></i>Hall Tickets
+                  </button>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- PDF Templates -->
+                <div>
+                  <h3 class="text-md font-medium text-gray-800 mb-3">Available Templates</h3>
+                  <div class="space-y-2">
+                    <div class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer" onclick="selectPDFTemplate('class-list')">
+                      <div class="flex items-center">
+                        <i class="fas fa-list text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium">Class List Template</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">Generate class-wise student lists</p>
+                    </div>
+                    <div class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer" onclick="selectPDFTemplate('hall-ticket')">
+                      <div class="flex items-center">
+                        <i class="fas fa-id-card text-green-600 mr-2"></i>
+                        <span class="text-sm font-medium">Hall Ticket Template</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">Generate exam hall tickets</p>
+                    </div>
+                    <div class="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer" onclick="selectPDFTemplate('grade-report')">
+                      <div class="flex items-center">
+                        <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
+                        <span class="text-sm font-medium">Grade Report Template</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">Generate grade-wise reports</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Generation Options -->
+                <div>
+                  <h3 class="text-md font-medium text-gray-800 mb-3">Generation Options</h3>
+                  <div class="space-y-3">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Select Grades</label>
+                      <select id="pdfGradeSelect" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="all">All Grades</option>
+                        <option value="1-5">Grades 1-5</option>
+                        <option value="6-10">Grades 6-10</option>
+                        <option value="12">Grade 12</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                      <select id="pdfFormatSelect" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="A4">A4</option>
+                        <option value="Letter">Letter</option>
+                        <option value="Legal">Legal</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="flex items-center">
+                        <input type="checkbox" id="includePhotos" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">Include student photos</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Recent PDFs -->
+                <div>
+                  <h3 class="text-md font-medium text-gray-800 mb-3">Recent PDFs</h3>
+                  <div class="space-y-2">
+                    <div class="p-2 bg-gray-50 rounded text-sm">
+                      <div class="flex justify-between items-center">
+                        <span class="font-medium">Grade 10 Hall Tickets</span>
+                        <button class="text-blue-600 hover:text-blue-800">
+                          <i class="fas fa-download"></i>
+                        </button>
+                      </div>
+                      <p class="text-xs text-gray-500">Generated 2 hours ago</p>
+                    </div>
+                    <div class="p-2 bg-gray-50 rounded text-sm">
+                      <div class="flex justify-between items-center">
+                        <span class="font-medium">Grade 5 Class Lists</span>
+                        <button class="text-blue-600 hover:text-blue-800">
+                          <i class="fas fa-download"></i>
+                        </button>
+                      </div>
+                      <p class="text-xs text-gray-500">Generated yesterday</p>
+                    </div>
+                    <div class="p-2 bg-gray-50 rounded text-sm">
+                      <div class="flex justify-between items-center">
+                        <span class="font-medium">All Grades Report</span>
+                        <button class="text-blue-600 hover:text-blue-800">
+                          <i class="fas fa-download"></i>
+                        </button>
+                      </div>
+                      <p class="text-xs text-gray-500">Generated 3 days ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div class="md:flex md:items-center md:justify-between">
+            <div class="flex justify-center md:justify-start">
+              <p class="text-center text-sm text-gray-500">
+                &copy; 2025 EduConnect. Created by 
+                <span class="font-semibold text-blue-600">MAXIMUS Consultancy Service</span>
+              </p>
+            </div>
+            <div class="mt-4 flex justify-center md:mt-0 md:justify-end">
+              <div class="flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-gray-500">
+                  <i class="fab fa-github"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-500">
+                  <i class="fab fa-twitter"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Authentication check and user initialization
+      document.addEventListener('DOMContentLoaded', function() {
+        checkAuthentication();
+      });
+      
+      async function checkAuthentication() {
+        const token = localStorage.getItem('authToken');
+        const userData = localStorage.getItem('userData');
+        
+        if (!token || !userData) {
+          // No authentication, redirect to landing
+          window.location.href = '/';
+          return;
+        }
+        
+        try {
+          // For demo mode, skip server verification if it's a demo token
+          if (token.startsWith('demo-token-')) {
+            const user = JSON.parse(userData);
+            initializeUserInterface(user);
+            console.log('Demo mode: Application loaded with demo authentication');
+            showDashboard();
+            loadDashboardStats();
+            return;
+          }
+          
+          // Verify token with server for production
+          const response = await fetch('/api/auth/me', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Invalid token');
+          }
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update user display
+            initializeUserInterface(data.data.user);
+            
+            // Load application
+            console.log('Application loaded with authentication');
+            showDashboard();
+            loadDashboardStats();
+          } else {
+            throw new Error('Authentication failed');
+          }
+        } catch (error) {
+          console.error('Authentication check failed:', error);
+          // Clear invalid tokens
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userData');
+          // Redirect to landing
+          window.location.href = '/';
+        }
+      }
+      
+      function initializeUserInterface(user) {
+        // Update user avatar with initials
+        const avatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        
+        if (user.name) {
+          const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+          avatar.textContent = initials;
+          userName.textContent = user.name;
+        }
+      }
+      
+      function logout() {
+        // Clear authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        
+        // Show logout message
+        alert('You have been logged out successfully.');
+        
+        // Redirect to landing page
+        window.location.href = '/';
+      }
+      
+      // Simple navigation functions
+      function showDashboard() {
+        hideAllSections();
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        updateActiveNav('Dashboard');
+      }
+      
+      function showBranches() {
+        hideAllSections();
+        document.getElementById('branchesSection').classList.remove('hidden');
+        updateActiveNav('Branches');
+        loadBranches();
+      }
+      
+      function showClasses() {
+        hideAllSections();
+        document.getElementById('classesSection').classList.remove('hidden');
+        updateActiveNav('Classes');
+        loadClasses();
+      }
+      
+      function showStudents() {
+        hideAllSections();
+        document.getElementById('studentsSection').classList.remove('hidden');
+        updateActiveNav('Students');
+        loadStudents();
+      }
+      
+      function showHallTickets() {
+        hideAllSections();
+        document.getElementById('hallTicketsSection').classList.remove('hidden');
+        updateActiveNav('Hall Tickets');
+      }
+      
+      function showGeneral() {
+        hideAllSections();
+        document.getElementById('generalSection').classList.remove('hidden');
+        updateActiveNav('General');
+        loadGeneralData();
+      }
+      
+      function showSettings() {
+        alert('Settings would open here in a full implementation');
+      }
+      
+      function hideAllSections() {
+        document.querySelectorAll('.section-content').forEach(section => {
+          section.classList.add('hidden');
+        });
+      }
+      
+      function updateActiveNav(activeText) {
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('bg-blue-50', 'text-blue-700');
+          link.classList.add('text-gray-700', 'hover:text-gray-900', 'hover:bg-gray-50');
+        });
+        
+        // Find and activate the correct nav link
+        const activeLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+          link.textContent.trim() === activeText);
+        if (activeLink) {
+          activeLink.classList.remove('text-gray-700', 'hover:text-gray-900', 'hover:bg-gray-50');
+          activeLink.classList.add('bg-blue-50', 'text-blue-700');
+        }
+      }
+      
+      // API helper function with authentication
+      function getAuthHeaders() {
+        const token = localStorage.getItem('authToken');
+        return {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        };
+      }
+      
+      // Data loading functions with API calls
+      async function loadDashboardStats() {
+        const token = localStorage.getItem('authToken');
+        
+        // For demo mode, show demo data
+        if (token && token.startsWith('demo-token-')) {
+          console.log('Loading demo dashboard stats...');
+          document.getElementById('branchCount').textContent = '4';
+          document.getElementById('classCount').textContent = '8';
+          document.getElementById('studentCount').textContent = '245';
+          document.getElementById('ticketCount').textContent = '12';
+          return;
+        }
+        
+        try {
+          // Load actual data from APIs for production
+          const [branches, classes, students] = await Promise.all([
+            fetch('/api/branches', { headers: getAuthHeaders() }).then(r => r.json()),
+            fetch('/api/classes', { headers: getAuthHeaders() }).then(r => r.json()),
+            fetch('/api/students', { headers: getAuthHeaders() }).then(r => r.json())
+          ]);
+          
+          document.getElementById('branchCount').textContent = branches.data?.length || '0';
+          document.getElementById('classCount').textContent = classes.data?.length || '0';
+          document.getElementById('studentCount').textContent = students.data?.length || '0';
+          document.getElementById('ticketCount').textContent = '0';
+        } catch (error) {
+          console.error('Error loading dashboard stats:', error);
+          // Fallback to demo values
+          document.getElementById('branchCount').textContent = '4';
+          document.getElementById('classCount').textContent = '8';
+          document.getElementById('studentCount').textContent = '245';
+          document.getElementById('ticketCount').textContent = '12';
+        }
+      }
+      
+      function loadBranches() {
+        document.getElementById('branchesList').innerHTML = '<p class="text-gray-500 text-center py-8">Branch management interface would appear here</p>';
+      }
+      
+      function loadClasses() {
+        document.getElementById('classesList').innerHTML = '<p class="text-gray-500 text-center py-8">Class management interface would appear here</p>';
+      }
+      
+      function loadStudents() {
+        document.getElementById('studentsList').innerHTML = '<p class="text-gray-500 text-center py-8">Student management interface would appear here</p>';
+      }
+      
+      function showAddBranchModal() {
+        alert('Add branch modal would open here in a full implementation');
+      }
+      
+      function showAddClassModal() {
+        alert('Add class modal would open here in a full implementation');
+      }
+      
+      function showAddStudentModal() {
+        alert('Add student modal would open here in a full implementation');
+      }
+      
+      function showImportStudentsModal() {
+        alert('Import students modal would open here in a full implementation');
+      }
+      
+      // General Section Functions
+      function loadGeneralData() {
+        console.log('Loading general education data...');
+        // Initialize grade filter
+        filterGeneralClasses('all');
+      }
+      
+      function addGeneralClass() {
+        const className = prompt('Enter class name (e.g., Grade 3A):');
+        if (className) {
+          alert(`General class '${className}' would be added in a full implementation`);
+        }
+      }
+      
+      function refreshGeneralClasses() {
+        alert('Refreshing general classes data...');
+        loadGeneralData();
+      }
+      
+      function filterGeneralClasses(filter) {
+        const cards = document.querySelectorAll('#generalClassesList .class-card');
+        const filterBtns = document.querySelectorAll('.grade-filter-btn');
+        
+        // Update filter button states
+        filterBtns.forEach(btn => {
+          btn.classList.remove('active', 'bg-blue-100', 'text-blue-800');
+          btn.classList.add('bg-gray-100', 'text-gray-700');
+        });
+        
+        const activeBtn = document.querySelector(`[onclick="filterGeneralClasses('${filter}')"]`);
+        if (activeBtn) {
+          activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
+          activeBtn.classList.add('active', 'bg-blue-100', 'text-blue-800');
+        }
+        
+        // Show/hide cards based on filter
+        cards.forEach(card => {
+          const grade = parseInt(card.dataset.grade);
+          let shouldShow = false;
+          
+          switch(filter) {
+            case 'all':
+              shouldShow = true;
+              break;
+            case '1-5':
+              shouldShow = grade >= 1 && grade <= 5;
+              break;
+            case '6-10':
+              shouldShow = grade >= 6 && grade <= 10;
+              break;
+            case '12':
+              shouldShow = grade === 12;
+              break;
+          }
+          
+          card.style.display = shouldShow ? 'block' : 'none';
+        });
+      }
+      
+      function viewClassDetails(classId) {
+        alert(`Viewing details for class ${classId}. In a full implementation, this would show:\n\n- Student roster\n- Subject assignments\n- Teacher information\n- Class schedule\n- Recent activities`);
+      }
+      
+      function editGeneralClass(classId) {
+        alert(`Editing class ${classId}. In a full implementation, this would open a modal with:\n\n- Class name editing\n- Teacher assignment\n- Student management\n- Subject assignment\n- Room/schedule settings`);
+      }
+      
+      // Bulk Subject Management Functions
+      function showBulkSubjectModal() {
+        alert('Bulk Subject Management Modal would open here with:\n\n- Select multiple grades\n- Add/remove subjects in bulk\n- Subject scheduling tools\n- Import/export subject lists');
+      }
+      
+      function addSubjectToGrades() {
+        const subject = prompt('Enter subject name to add to multiple grades:');
+        if (subject) {
+          const grades = prompt('Enter grades to add to (e.g., 1,2,3,4,5):');
+          if (grades) {
+            alert(`Subject '${subject}' would be added to grades: ${grades}`);
+          }
+        }
+      }
+      
+      function updateSubjectAcrossGrades() {
+        alert('Update Subject Across Grades would open a modal with:\n\n- Subject selection\n- Grade range selection\n- Update options (name, schedule, teacher)\n- Batch update confirmation');
+      }
+      
+      function removeSubjectFromGrades() {
+        const subject = prompt('Enter subject name to remove from grades:');
+        if (subject) {
+          const grades = prompt('Enter grades to remove from (e.g., 6,7,8,9,10):');
+          if (grades) {
+            const confirm = window.confirm(`Are you sure you want to remove '${subject}' from grades: ${grades}?`);
+            if (confirm) {
+              alert(`Subject '${subject}' would be removed from grades: ${grades}`);
+            }
+          }
+        }
+      }
+      
+      // PDF Management Functions
+      function generateClassReportPDF() {
+        const grades = document.getElementById('pdfGradeSelect').value;
+        const format = document.getElementById('pdfFormatSelect').value;
+        const includePhotos = document.getElementById('includePhotos').checked;
+        
+        alert(`Generating Class Report PDF:\n\nGrades: ${grades}\nFormat: ${format}\nInclude Photos: ${includePhotos ? 'Yes' : 'No'}\n\nIn a full implementation, this would generate and download a comprehensive report.`);
+      }
+      
+      function generateHallTicketsPDF() {
+        const grades = document.getElementById('pdfGradeSelect').value;
+        const format = document.getElementById('pdfFormatSelect').value;
+        const includePhotos = document.getElementById('includePhotos').checked;
+        
+        alert(`Generating Hall Tickets PDF:\n\nGrades: ${grades}\nFormat: ${format}\nInclude Photos: ${includePhotos ? 'Yes' : 'No'}\n\nIn a full implementation, this would generate hall tickets for the selected grades.`);
+      }
+      
+      function selectPDFTemplate(template) {
+        alert(`Selected PDF Template: ${template}\n\nIn a full implementation, this would:\n\n- Load template settings\n- Show template preview\n- Configure template options\n- Set generation parameters`);
+      }
+    </script>
+  </body>
+</html>

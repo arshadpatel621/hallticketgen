@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Login Test - EduConnect</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-pass { background-color: #10b981; }
+        .status-fail { background-color: #ef4444; }
+        .status-pending { background-color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-clipboard-check text-blue-600 mr-3"></i>
+                EduConnect Final Login Test
+            </h1>
+            <p class="text-gray-600">
+                Complete testing suite to verify login and registration functionality
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Demo Mode Status -->
+            <div class="test-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-cog text-blue-600 mr-2"></i>Demo Mode Status
+                </h2>
+                <div id="demoModeStatus" class="space-y-2">
+                    <!-- Status will be populated by JavaScript -->
+                </div>
+                <div class="mt-4 space-x-2">
+                    <button onclick="clearAllDemoData()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Clear Demo Data
+                    </button>
+                    <button onclick="checkDemoStatus()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync mr-2"></i>Refresh Status
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Test -->
+            <div class="test-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-mouse-pointer text-green-600 mr-2"></i>Navigation Test
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <button onclick="testCreateAccountClick()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors w-full">
+                            <i class="fas fa-user-plus mr-2"></i>Test "Create Account" Click
+                        </button>
+                    </div>
+                    <div>
+                        <button onclick="openMainSite()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition-colors w-full">
+                            <i class="fas fa-external-link-alt mr-2"></i>Open Main Website
+                        </button>
+                    </div>
+                </div>
+                <div id="navigationResult" class="mt-4"></div>
+            </div>
+
+            <!-- Supabase Connection Test -->
+            <div class="test-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-database text-indigo-600 mr-2"></i>Supabase Connection
+                </h2>
+                <div class="space-y-3">
+                    <button onclick="testSupabaseConnection()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition-colors w-full">
+                        <i class="fas fa-plug mr-2"></i>Test Connection
+                    </button>
+                </div>
+                <div id="supabaseResult" class="mt-4"></div>
+            </div>
+
+            <!-- Live Test -->
+            <div class="test-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-play-circle text-orange-600 mr-2"></i>Live Test
+                </h2>
+                <div class="space-y-3">
+                    <button onclick="runFullTest()" class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition-colors w-full">
+                        <i class="fas fa-rocket mr-2"></i>Run Complete Test
+                    </button>
+                </div>
+                <div id="liveTestResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-card mt-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                <i class="fas fa-info-circle text-blue-600 mr-2"></i>How to Test
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">Steps to Test:</h3>
+                    <ol class="list-decimal list-inside space-y-1 text-sm text-gray-600">
+                        <li>First, clear demo mode data if needed</li>
+                        <li>Test "Create Account" click functionality</li>
+                        <li>Open main website</li>
+                        <li>Try clicking "Create account" link on login page</li>
+                        <li>Try registering with real credentials</li>
+                        <li>Try logging in with registered account</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">What Should Work:</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                        <li>✅ "Create account" link should navigate to registration</li>
+                        <li>✅ Registration form should submit and show verification message</li>
+                        <li>✅ Email verification should work</li>
+                        <li>✅ Login should work with verified accounts</li>
+                        <li>✅ Clear error messages for invalid inputs</li>
+                        <li>✅ Proper page navigation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://rhvvqpiazcnsmknsowrx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodnZxcGlhemNuc21rbnNvd3J4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NTUwMDAsImV4cCI6MjA3MzQzMTAwMH0.tVVwDY42PuYVlMlgixMC4mbQ11_CMVKCTKjsVRW2YeA';
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const iconMap = {
+                'success': 'fa-check-circle text-green-600',
+                'error': 'fa-exclamation-circle text-red-600',
+                'info': 'fa-info-circle text-blue-600',
+                'warning': 'fa-exclamation-triangle text-yellow-600'
+            };
+            
+            const colorMap = {
+                'success': 'text-green-700 bg-green-50 border-green-200',
+                'error': 'text-red-700 bg-red-50 border-red-200',
+                'info': 'text-blue-700 bg-blue-50 border-blue-200',
+                'warning': 'text-yellow-700 bg-yellow-50 border-yellow-200'
+            };
+            
+            element.innerHTML = `
+                <div class="p-3 border rounded-lg ${colorMap[type]}">
+                    <i class="fas ${iconMap[type]} mr-2"></i>${message}
+                </div>
+            `;
+        }
+
+        function checkDemoStatus() {
+            const status = document.getElementById('demoModeStatus');
+            let html = '';
+            
+            // Check various demo flags
+            const checks = [
+                { key: 'demoMode', storage: 'localStorage' },
+                { key: 'forceDemoMode', storage: 'localStorage' },
+                { key: 'supabaseDisabled', storage: 'localStorage' },
+                { key: 'authToken', storage: 'localStorage' },
+                { key: 'userData', storage: 'localStorage' },
+                { key: 'authToken', storage: 'sessionStorage' },
+                { key: 'userData', storage: 'sessionStorage' }
+            ];
+            
+            checks.forEach(check => {
+                const value = window[check.storage].getItem(check.key);
+                const statusClass = value ? 'status-fail' : 'status-pass';
+                html += `
+                    <div class="text-sm">
+                        <span class="status-indicator ${statusClass}"></span>
+                        ${check.storage}.${check.key}: ${value ? '❌ Present' : '✅ Clean'}
+                    </div>
+                `;
+            });
+            
+            status.innerHTML = html;
+        }
+
+        function clearAllDemoData() {
+            // Clear all possible demo data
+            const keysToRemove = [
+                'authToken', 'userData', 'demoMode', 'demoRole', 
+                'forceDemoMode', 'supabaseDisabled', 'rememberUser', 'pendingUserData'
+            ];
+            
+            keysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+                sessionStorage.removeItem(key);
+            });
+            
+            // Also clear everything just to be sure
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            showStatus('demoModeStatus', 'All demo data cleared successfully!', 'success');
+            setTimeout(checkDemoStatus, 1000);
+        }
+
+        function testCreateAccountClick() {
+            showStatus('navigationResult', 'Testing Create Account functionality...', 'info');
+            
+            // Simulate the showMainRegister function
+            try {
+                if (typeof showMainRegister === 'function') {
+                    showStatus('navigationResult', '✅ showMainRegister function is available', 'success');
+                } else {
+                    showStatus('navigationResult', '❌ showMainRegister function not found', 'error');
+                }
+            } catch (error) {
+                showStatus('navigationResult', `❌ Error testing function: ${error.message}`, 'error');
+            }
+        }
+
+        function openMainSite() {
+            window.open('index.html', '_blank');
+        }
+
+        async function testSupabaseConnection() {
+            showStatus('supabaseResult', 'Testing Supabase connection...', 'info');
+            
+            try {
+                // Load Supabase if not already loaded
+                if (typeof supabase === 'undefined') {
+                    showStatus('supabaseResult', '❌ Supabase library not loaded', 'error');
+                    return;
+                }
+                
+                const { createClient } = supabase;
+                const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Test connection
+                const { data, error } = await client.auth.getSession();
+                
+                if (error) {
+                    showStatus('supabaseResult', `⚠ Supabase connected but auth error: ${error.message}`, 'warning');
+                } else {
+                    showStatus('supabaseResult', '✅ Supabase connection successful!', 'success');
+                }
+                
+            } catch (error) {
+                showStatus('supabaseResult', `❌ Supabase connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullTest() {
+            showStatus('liveTestResult', 'Running complete test suite...', 'info');
+            
+            let results = [];
+            
+            // Test 1: Demo mode status
+            const demoMode = localStorage.getItem('demoMode') || localStorage.getItem('forceDemoMode');
+            results.push(`Demo Mode: ${demoMode ? '❌ Active' : '✅ Disabled'}`);
+            
+            // Test 2: Supabase availability
+            try {
+                if (typeof supabase !== 'undefined') {
+                    results.push('Supabase Library: ✅ Loaded');
+                    
+                    const { createClient } = supabase;
+                    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    const { data, error } = await client.auth.getSession();
+                    
+                    results.push(`Supabase Auth: ${error ? '⚠ Connected (with issues)' : '✅ Working'}`);
+                } else {
+                    results.push('Supabase Library: ❌ Not loaded');
+                }
+            } catch (error) {
+                results.push('Supabase Auth: ❌ Failed');
+            }
+            
+            // Test 3: Function availability
+            const functions = ['showMainRegister', 'showMainLogin', 'handleMainLogin', 'handleMainRegister'];
+            functions.forEach(func => {
+                results.push(`${func}: ${typeof window[func] === 'function' ? '✅ Available' : '❌ Missing'}`);
+            });
+            
+            const resultHtml = `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">Test Results:</h4>
+                    ${results.map(result => `<div class="text-sm">${result}</div>`).join('')}
+                </div>
+            `;
+            
+            document.getElementById('liveTestResult').innerHTML = resultHtml;
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            checkDemoStatus();
+            
+            // Load Supabase dynamically for testing
+            if (typeof supabase === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+</body>
+</html>

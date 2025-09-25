@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Demo Mode - EduConnect</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+        .btn.success {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: #333; margin-bottom: 20px;">
+            <i class="fas fa-broom text-blue-500 mr-3"></i>
+            Clear Demo Mode
+        </h1>
+        
+        <p style="color: #666; margin-bottom: 30px;">
+            This will clear all demo mode settings and reset EduConnect to use real Supabase authentication.
+        </p>
+        
+        <div id="status"></div>
+        
+        <button class="btn danger" onclick="clearDemoMode()">
+            <i class="fas fa-trash mr-2"></i>Clear Demo Mode
+        </button>
+        
+        <button class="btn success" onclick="openMainSite()">
+            <i class="fas fa-external-link-alt mr-2"></i>Open Main Site
+        </button>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h3 style="color: #333; margin-bottom: 15px;">Current Storage Status:</h3>
+            <div id="storageStatus" style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 14px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}"><i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>${message}</div>`;
+        }
+        
+        function updateStorageStatus() {
+            const storageDiv = document.getElementById('storageStatus');
+            let html = '';
+            
+            // Check localStorage
+            html += '<strong>localStorage:</strong><br>';
+            const localKeys = ['authToken', 'userData', 'demoMode', 'demoRole', 'forceDemoMode', 'supabaseDisabled', 'rememberUser'];
+            localKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                html += `${key}: ${value ? '✓ Present' : '✗ Not found'}<br>`;
+            });
+            
+            html += '<br><strong>sessionStorage:</strong><br>';
+            const sessionKeys = ['authToken', 'userData', 'pendingUserData'];
+            sessionKeys.forEach(key => {
+                const value = sessionStorage.getItem(key);
+                html += `${key}: ${value ? '✓ Present' : '✗ Not found'}<br>`;
+            });
+            
+            storageDiv.innerHTML = html;
+        }
+        
+        function clearDemoMode() {
+            showStatus('Clearing demo mode settings...', 'info');
+            
+            // Clear all demo-related localStorage items
+            const keysToRemove = [
+                'authToken', 
+                'userData', 
+                'demoMode', 
+                'demoRole', 
+                'forceDemoMode', 
+                'supabaseDisabled',
+                'rememberUser',
+                'pendingUserData'
+            ];
+            
+            // Clear localStorage
+            keysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+            });
+            
+            // Clear sessionStorage
+            keysToRemove.forEach(key => {
+                sessionStorage.removeItem(key);
+            });
+            
+            // Clear any other demo flags
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            showStatus('✅ Demo mode cleared! EduConnect will now use real Supabase authentication.', 'success');
+            updateStorageStatus();
+            
+            setTimeout(() => {
+                showStatus('Ready to use real authentication. You can now register and login normally.', 'success');
+            }, 2000);
+        }
+        
+        function openMainSite() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Update status on page load
+        window.addEventListener('load', function() {
+            updateStorageStatus();
+            
+            const demoMode = localStorage.getItem('demoMode') || localStorage.getItem('forceDemoMode');
+            if (demoMode) {
+                showStatus('Demo mode is currently active. Click "Clear Demo Mode" to disable it.', 'info');
+            } else {
+                showStatus('Demo mode is not active. Normal authentication is enabled.', 'success');
+            }
+        });
+    </script>
+</body>
+</html>

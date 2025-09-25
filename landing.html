@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduConnect - Professional Hall Ticket Generator</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3ccircle cx='50' cy='50' r='45' fill='%234F46E5'/%3e%3ctext x='50' y='60' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-size='40' font-weight='bold'%3eE%3c/text%3e%3c/svg%3e" />
+</head>
+<body class="bg-gray-50">
+    <!-- Landing Page (shown by default) -->
+    <div id="landingPage" class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm fixed w-full z-50 top-0">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 flex items-center">
+                            <div class="h-10 w-10 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-white text-lg"></i>
+                            </div>
+                            <span class="ml-3 text-2xl font-bold text-gray-900">EduConnect</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="showLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Login
+                        </button>
+                        <button onclick="showRegister()" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="pt-20 pb-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+                    <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
+                                Professional 
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Hall Ticket</span>
+                                Generator
+                            </h1>
+                            <p class="mt-6 text-xl text-gray-600 sm:max-w-md lg:max-w-none">
+                                Create, customize, and manage hall tickets with ease. Streamline your examination process with our powerful and intuitive platform.
+                            </p>
+                            <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <button onclick="showRegister()" class="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors shadow-lg">
+                                        Get Started
+                                    </button>
+                                    <button onclick="learnMore()" class="w-full sm:w-auto bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-gray-50 transition-colors border border-gray-200">
+                                        Learn More
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-16 lg:mt-0 lg:col-span-6">
+                        <div class="bg-white rounded-2xl shadow-2xl p-6">
+                            <div class="aspect-w-16 aspect-h-9 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="h-20 w-20 rounded-xl bg-white shadow-lg flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-ticket-alt text-blue-600 text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Hall Ticket Preview</h3>
+                                    <p class="text-gray-600">Professional, customizable design</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                        Why Choose EduConnect?
+                    </h2>
+                    <p class="mt-4 text-xl text-gray-600">
+                        Streamline your hall ticket generation process
+                    </p>
+                </div>
+
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="h-16 w-16 rounded-xl bg-blue-100 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-bolt text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Fast Generation</h3>
+                        <p class="text-gray-600">Generate hall tickets in seconds with our optimized system</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="h-16 w-16 rounded-xl bg-green-100 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-palette text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Customizable</h3>
+                        <p class="text-gray-600">Add logos, photos, and customize layouts to match your institution</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="h-16 w-16 rounded-xl bg-purple-100 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-shield-alt text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Secure</h3>
+                        <p class="text-gray-600">Your data is protected with enterprise-grade security</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Coverage Section -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900">Complete Educational Coverage</h2>
+                    <p class="mt-4 text-xl text-gray-600">From general school classes to specialized engineering departments</p>
+                </div>
+
+                <!-- General Education Section -->
+                <div class="mb-12">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">General Education (Grades 1-10, 12)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                            <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center mb-4">
+                                <i class="fas fa-chalkboard-teacher text-green-600"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Primary Classes</h4>
+                            <p class="text-gray-600">Grades 1-5 • Foundation Learning</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                            <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                                <i class="fas fa-book-reader text-blue-600"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Middle School</h4>
+                            <p class="text-gray-600">Grades 6-10 • Core Subjects</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                            <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center mb-4">
+                                <i class="fas fa-graduation-cap text-purple-600"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Senior Secondary</h4>
+                            <p class="text-gray-600">Grade 12 • College Prep</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Engineering Departments Section -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">Engineering Departments</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                            <i class="fas fa-laptop-code text-blue-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Computer Science</h3>
+                        <p class="text-gray-600">1,250+ Students</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center mb-4">
+                            <i class="fas fa-cogs text-orange-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Mechanical</h3>
+                        <p class="text-gray-600">980+ Students</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center mb-4">
+                            <i class="fas fa-bolt text-yellow-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Electrical</h3>
+                        <p class="text-gray-600">756+ Students</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center mb-4">
+                            <i class="fas fa-building text-green-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Civil</h3>
+                        <p class="text-gray-600">645+ Students</p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold text-white mb-4">Ready to get started?</h2>
+                <p class="text-xl text-blue-100 mb-8">Join thousands of institutions using EduConnect</p>
+                <button onclick="showRegister()" class="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-gray-100 transition-colors shadow-lg">
+                    Create Your Account
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div class="md:flex md:items-center md:justify-between">
+                    <div class="flex justify-center md:justify-start">
+                        <p class="text-center text-sm text-gray-500">
+                            &copy; 2025 EduConnect. Created by 
+                            <span class="font-semibold text-blue-600">MAXIMUS Consultancy Service</span>
+                        </p>
+                    </div>
+                    <div class="mt-4 flex justify-center md:mt-0 md:justify-end">
+                        <div class="flex space-x-6">
+                            <a href="#" class="text-gray-400 hover:text-gray-500">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-gray-500">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Welcome Back</h3>
+                    <button onclick="hideModals()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="loginPassword" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Don't have an account? 
+                        <button onclick="switchToRegister()" class="text-blue-600 hover:text-blue-500 font-medium">Sign up</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Create Account</h3>
+                    <button onclick="hideModals()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="registerForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                            <input type="text" id="firstName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                            <input type="text" id="lastName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="registerEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Institution</label>
+                        <input type="text" id="institution" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="registerPassword" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="confirmPassword" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <input type="checkbox" id="terms" required class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <label for="terms" class="ml-2 text-sm text-gray-600">
+                            I agree to the <a href="#" class="text-blue-600 hover:text-blue-500">Terms of Service</a> and <a href="#" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Already have an account? 
+                        <button onclick="switchToLogin()" class="text-blue-600 hover:text-blue-500 font-medium">Sign in</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-check text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Login Successful!</h3>
+                <p class="text-sm text-gray-600 mb-6">Redirecting to hall ticket generator...</p>
+                <button onclick="redirectToDashboard()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    Continue to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function hideModals() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('registerModal').classList.add('hidden');
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        function switchToLogin() {
+            showLogin();
+        }
+
+        function switchToRegister() {
+            showRegister();
+        }
+
+        function learnMore() {
+            // Scroll to features section
+            document.querySelector('section:nth-of-type(2)').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Authentication functions
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store user data and token
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    
+                    // Show success modal
+                    hideModals();
+                    document.getElementById('successModal').classList.remove('hidden');
+                    
+                    // Auto redirect after 2 seconds
+                    setTimeout(redirectToDashboard, 2000);
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const institution = document.getElementById('institution').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        name: `${firstName} ${lastName}`,
+                        email, 
+                        institution, 
+                        password 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Registration successful! Please login with your credentials.');
+                    switchToLogin();
+                } else {
+                    alert('Registration failed: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed. Please try again.');
+            }
+        });
+
+        function redirectToDashboard() {
+            // Redirect to the main hall ticket generator (index-simple.html or main app)
+            window.location.href = '/dashboard';
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // User is already logged in, redirect to dashboard
+                redirectToDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Button Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0; 
+        }
+        .test-button { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin: 10px; 
+            display: block;
+            width: 300px;
+        }
+        .test-button:hover { 
+            background: #45a049; 
+        }
+        .status { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+            border-left: 5px solid #2196F3;
+        }
+        .error { 
+            border-left-color: #f44336; 
+            background: #ffebee;
+        }
+        .success { 
+            border-left-color: #4CAF50; 
+            background: #e8f5e9;
+        }
+        .console-output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 JavaScript Button Functionality Test</h1>
+    
+    <div class="status" id="loadStatus">
+        <strong>Loading script.js...</strong> Please wait...
+    </div>
+
+    <h2>Test Buttons</h2>
+    
+    <button class="test-button" onclick="testShowSection()">
+        🚀 Test "Get Started" Function
+    </button>
+    
+    <button class="test-button" onclick="testViewBranches()">
+        📚 Test "View Branches" Function  
+    </button>
+    
+    <button class="test-button" onclick="testStudentTypeSelection()">
+        👨‍🎓 Test Student Type Selection
+    </button>
+
+    <h2>📊 Function Status</h2>
+    <div id="functionStatus" class="status">
+        Checking functions...
+    </div>
+
+    <h2>🖥️ Console Output</h2>
+    <div class="console-output" id="consoleOutput">
+        Console loading...
+    </div>
+
+    <!-- Required hidden elements -->
+    <div id="studentTypeSelection" class="hidden" style="display: none;"></div>
+    <div id="engineering" class="hidden" style="display: none;"></div>
+    <div id="branchPopup" class="hidden" style="display: none;">
+        <div id="branchGrid"></div>
+        <input type="text" id="branchSearch">
+        <div id="noResults" class="hidden" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Console capture
+        const consoleOutput = document.getElementById('consoleOutput');
+        let consoleBuffer = [];
+
+        function addToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            consoleBuffer.push(entry);
+            
+            // Keep only last 50 entries
+            if (consoleBuffer.length > 50) {
+                consoleBuffer = consoleBuffer.slice(-50);
+            }
+            
+            consoleOutput.innerHTML = consoleBuffer.join('\n');
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Override console methods
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole(args.join(' '), 'warn');
+        };
+
+        // Test functions
+        function testShowSection() {
+            addToConsole('Testing showSection function...', 'info');
+            try {
+                if (typeof showSection === 'function') {
+                    showSection('studentTypeSelection');
+                    addToConsole('✅ showSection worked!', 'success');
+                    updateStatus('success', '✅ Get Started function is working!');
+                } else {
+                    throw new Error('showSection function not found');
+                }
+            } catch (error) {
+                addToConsole('❌ showSection failed: ' + error.message, 'error');
+                updateStatus('error', '❌ Get Started function failed: ' + error.message);
+            }
+        }
+
+        function testViewBranches() {
+            addToConsole('Testing View Branches function...', 'info');
+            try {
+                if (typeof showSection === 'function') {
+                    showSection('engineering');
+                    addToConsole('✅ View Branches worked!', 'success');
+                    updateStatus('success', '✅ View Branches function is working!');
+                } else {
+                    throw new Error('showSection function not found');
+                }
+            } catch (error) {
+                addToConsole('❌ View Branches failed: ' + error.message, 'error');
+                updateStatus('error', '❌ View Branches function failed: ' + error.message);
+            }
+        }
+
+        function testStudentTypeSelection() {
+            addToConsole('Testing selectStudentType function...', 'info');
+            try {
+                if (typeof selectStudentType === 'function') {
+                    selectStudentType('engineering');
+                    addToConsole('✅ selectStudentType worked!', 'success');
+                    updateStatus('success', '✅ Student Type Selection function is working!');
+                } else {
+                    throw new Error('selectStudentType function not found');
+                }
+            } catch (error) {
+                addToConsole('❌ selectStudentType failed: ' + error.message, 'error');
+                updateStatus('error', '❌ Student Type Selection failed: ' + error.message);
+            }
+        }
+
+        function updateStatus(type, message) {
+            const statusDiv = document.getElementById('functionStatus');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>${message}</strong>`;
+        }
+
+        function checkAllFunctions() {
+            const functions = [
+                'showSection',
+                'selectStudentType', 
+                'openBranchPopup',
+                'closeBranchPopup',
+                'goBack',
+                'toggleMobileMenu'
+            ];
+
+            let results = ['<strong>Function Availability Check:</strong><br>'];
+            let allWorking = true;
+
+            functions.forEach(funcName => {
+                const isAvailable = typeof window[funcName] === 'function';
+                const status = isAvailable ? '✅' : '❌';
+                const typeInfo = typeof window[funcName];
+                
+                results.push(`${status} ${funcName}: ${typeInfo}`);
+                
+                if (!isAvailable) {
+                    allWorking = false;
+                }
+                
+                addToConsole(`Function ${funcName}: ${isAvailable ? 'Available' : 'Missing'} (${typeInfo})`, isAvailable ? 'log' : 'error');
+            });
+
+            const statusDiv = document.getElementById('functionStatus');
+            statusDiv.className = `status ${allWorking ? 'success' : 'error'}`;
+            statusDiv.innerHTML = results.join('<br>');
+
+            const loadStatusDiv = document.getElementById('loadStatus');
+            if (allWorking) {
+                loadStatusDiv.className = 'status success';
+                loadStatusDiv.innerHTML = '<strong>✅ Script loaded successfully!</strong> All functions are available.';
+            } else {
+                loadStatusDiv.className = 'status error';  
+                loadStatusDiv.innerHTML = '<strong>❌ Script loading issues detected!</strong> Some functions are missing.';
+            }
+
+            return allWorking;
+        }
+
+        // Load the actual script and test
+        addToConsole('Starting minimal functionality test...', 'info');
+        addToConsole('Loading script.js...', 'info');
+    </script>
+    
+    <script src="script.js"></script>
+    
+    <script>
+        // Test after script loads
+        setTimeout(() => {
+            addToConsole('Script.js loaded, checking functions...', 'info');
+            
+            const allWorking = checkAllFunctions();
+            
+            if (allWorking) {
+                addToConsole('🎉 All functions loaded successfully!', 'success');
+                addToConsole('You can now test the buttons above.', 'info');
+            } else {
+                addToConsole('⚠️ Some functions are missing. There may be errors in script.js', 'error');
+            }
+        }, 1000);
+
+        // Global error handler
+        window.onerror = function(message, source, lineno, colno, error) {
+            addToConsole(`GLOBAL ERROR: ${message} at ${source}:${lineno}:${colno}`, 'error');
+            if (error) {
+                addToConsole(`Error details: ${error.stack}`, 'error');
+            }
+            return false;
+        };
+
+        addToConsole('Minimal test page initialized.', 'info');
+    </script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Login Requests</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <h1 class="text-xl font-bold">
+                <i class="fas fa-shield-alt mr-2"></i>EduConnect Admin - Login Requests
+            </h1>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 px-4">
+        <!-- Stats -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded shadow">
+                <h3 class="text-sm text-gray-500">Pending</h3>
+                <p class="text-2xl font-bold text-yellow-600" id="pendingCount">-</p>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <h3 class="text-sm text-gray-500">Approved</h3>
+                <p class="text-2xl font-bold text-green-600" id="approvedCount">-</p>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <h3 class="text-sm text-gray-500">Rejected</h3>
+                <p class="text-2xl font-bold text-red-600" id="rejectedCount">-</p>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <h3 class="text-sm text-gray-500">Expired</h3>
+                <p class="text-2xl font-bold text-gray-600" id="expiredCount">-</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-white p-4 rounded shadow mb-6">
+            <div class="flex gap-4 items-end">
+                <div>
+                    <label class="block text-sm text-gray-700">Status</label>
+                    <select id="statusFilter" class="border rounded px-3 py-2">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <button onclick="loadRequests()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Requests List -->
+        <div id="requestsList" class="space-y-4"></div>
+    </div>
+
+    <!-- Decision Modal -->
+    <div id="decisionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
+            <h3 class="text-lg font-semibold mb-4">Review Request</h3>
+            <div id="modalUserInfo" class="mb-4"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Admin Notes</label>
+                <textarea id="adminNotes" rows="3" class="w-full border rounded px-3 py-2"></textarea>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="processDecision('approve')" class="flex-1 px-4 py-2 bg-green-600 text-white rounded">
+                    Approve
+                </button>
+                <button onclick="processDecision('reject')" class="flex-1 px-4 py-2 bg-red-600 text-white rounded">
+                    Reject
+                </button>
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.protocol + '//' + window.location.host;
+        let currentRequestId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRequests();
+            setInterval(loadRequests, 30000); // Auto-refresh every 30 seconds
+        });
+
+        // Load requests
+        async function loadRequests() {
+            try {
+                const status = document.getElementById('statusFilter').value;
+                let url = `${API_BASE_URL}/api/auth/login-requests`;
+                if (status) url += `?status=${status}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayRequests(data.data.requests);
+                    updateStats(data.data.stats);
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+            }
+        }
+
+        // Display requests
+        function displayRequests(requests) {
+            const container = document.getElementById('requestsList');
+            container.innerHTML = '';
+
+            requests.forEach(request => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded shadow border-l-4 border-blue-500';
+                
+                const isPending = request.status === 'pending';
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 py-1 text-xs rounded ${getStatusColor(request.status)}">
+                                    ${request.status.toUpperCase()}
+                                </span>
+                            </div>
+                            <h3 class="font-semibold">${request.user_name}</h3>
+                            <p class="text-gray-600">${request.user_email}</p>
+                            <p class="text-sm text-gray-500">
+                                Requested: ${new Date(request.requested_at).toLocaleString()}
+                            </p>
+                            ${request.admin_notes ? `<p class="text-sm mt-2 p-2 bg-blue-50 rounded">Notes: ${request.admin_notes}</p>` : ''}
+                        </div>
+                        <div class="flex space-x-2">
+                            ${isPending ? `
+                                <button onclick="openModal('${request.id}', '${request.user_name}', '${request.user_email}')" 
+                                        class="px-3 py-1 bg-blue-600 text-white rounded text-sm">
+                                    Review
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Get status color
+        function getStatusColor(status) {
+            const colors = {
+                pending: 'bg-yellow-200 text-yellow-800',
+                approved: 'bg-green-200 text-green-800',
+                rejected: 'bg-red-200 text-red-800',
+                expired: 'bg-gray-200 text-gray-800'
+            };
+            return colors[status] || colors.pending;
+        }
+
+        // Update stats
+        function updateStats(stats) {
+            if (stats) {
+                document.getElementById('pendingCount').textContent = stats.pending || 0;
+                document.getElementById('approvedCount').textContent = stats.approved || 0;
+                document.getElementById('rejectedCount').textContent = stats.rejected || 0;
+                document.getElementById('expiredCount').textContent = stats.expired || 0;
+            }
+        }
+
+        // Open modal
+        function openModal(requestId, userName, userEmail) {
+            currentRequestId = requestId;
+            document.getElementById('modalUserInfo').innerHTML = `
+                <div class="p-3 bg-gray-50 rounded">
+                    <p><strong>User:</strong> ${userName}</p>
+                    <p><strong>Email:</strong> ${userEmail}</p>
+                </div>
+            `;
+            document.getElementById('decisionModal').classList.remove('hidden');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('decisionModal').classList.add('hidden');
+            currentRequestId = null;
+        }
+
+        // Process decision
+        async function processDecision(action) {
+            if (!currentRequestId) return;
+
+            const notes = document.getElementById('adminNotes').value.trim();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/admin-decision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requestId: currentRequestId,
+                        action: action,
+                        notes: notes
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Request ${action}ed successfully`);
+                    closeModal();
+                    loadRequests();
+                } else {
+                    alert(data.message || `Failed to ${action} request`);
+                }
+            } catch (error) {
+                console.error(`Error ${action}ing request:`, error);
+                alert(`Error ${action}ing request`);
+            }
+        }
+    </script>
+</body>
+</html>

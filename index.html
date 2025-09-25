@@ -18,7 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 
     <title>EduConnect - Professional Hall Ticket Generator</title>
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3ccircle cx='50' cy='50' r='45' fill='%234F46E5'/%3e%3ctext x='50' y='60' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-size='40' font-weight='bold'%3eE%3c/text%3e%3c/svg%3e" />
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="styles.css" />
@@ -41,7 +41,7 @@
           </div>
           <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
             <a href="#" onclick="showSection('home')" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2">Home</a>
-            <a href="#" onclick="showSection('engineering')" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2">Engineering</a>
+            <a href="#" onclick="showSection('studentTypeSelection')" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2">Get Started</a>
             <a href="#" onclick="showSection('generator')" class="nav-link text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2">Hall Ticket</a>
             <button class="btn btn-primary px-4 py-2 text-sm">Login</button>
           </div>
@@ -56,7 +56,7 @@
         <div id="mobileMenu" class="mobile-menu hidden md:hidden">
           <div class="px-4 py-3 space-y-2">
             <a href="#" onclick="showSection('home'); closeMobileMenu()" class="nav-link block px-3 py-3 text-base font-medium rounded-lg">Home</a>
-            <a href="#" onclick="showSection('engineering'); closeMobileMenu()" class="nav-link block px-3 py-3 text-base font-medium rounded-lg">Engineering</a>
+            <a href="#" onclick="showSection('studentTypeSelection'); closeMobileMenu()" class="nav-link block px-3 py-3 text-base font-medium rounded-lg">Get Started</a>
             <a href="#" onclick="showSection('generator'); closeMobileMenu()" class="nav-link block px-3 py-3 text-base font-medium rounded-lg">Hall Ticket</a>
             <button class="btn btn-primary w-full mt-3">Login</button>
           </div>
@@ -72,7 +72,7 @@
           <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">Professional Hall Ticket Generator</h1>
           <p class="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 opacity-90 max-w-4xl mx-auto">Create, customize, and manage hall tickets with ease</p>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
-            <button onclick="showSection('engineering')" class="btn bg-white text-blue-600 px-6 sm:px-8 py-3 text-base sm:text-lg font-semibold hover:bg-gray-100 transition-colors">
+            <button onclick="showSection('studentTypeSelection')" class="btn bg-white text-blue-600 px-6 sm:px-8 py-3 text-base sm:text-lg font-semibold hover:bg-gray-100 transition-colors">
               <i class="fas fa-rocket mr-2"></i>Get Started
             </button>
             <button onclick="openLearnMore()" class="btn border-2 border-white text-white px-6 sm:px-8 py-3 text-base sm:text-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
@@ -145,6 +145,80 @@
               <i class="fas fa-building text-4xl text-purple-600 mb-4"></i>
               <h3 class="text-lg font-bold text-gray-800">Civil</h3>
               <p class="text-sm text-gray-600 mt-2">645+ Students</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Student Type Selection Section -->
+    <section id="studentTypeSelection" class="section hidden">
+      <div class="py-12 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Choose Your Student Type</h2>
+            <p class="text-xl text-gray-600 mb-8">Select the category that best describes you</p>
+          </div>
+          
+          <div class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <!-- Engineering Students Option -->
+            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-xl border border-blue-200 p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer group" onclick="selectStudentType('engineering')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-cogs text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Engineering Students</h3>
+                <p class="text-gray-600 mb-4 leading-relaxed text-sm">For students pursuing engineering degrees with specialized branches.</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Branch-specific curriculum</li>
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Technical subjects</li>
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Laboratory sessions</li>
+                </ul>
+                <button class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-colors w-full text-sm">
+                  Select Engineering
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- General College Students Option -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-xl border border-green-200 p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer group" onclick="selectStudentType('general')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-green-600 to-emerald-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">College Students</h3>
+                <p class="text-gray-600 mb-4 leading-relaxed text-sm">For students in arts, commerce, science, and other non-engineering programs.</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>General curriculum</li>
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Academic subjects</li>
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Theory and practical</li>
+                </ul>
+                <button class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-colors w-full text-sm">
+                  Select College
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- School Students Option -->
+            <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl shadow-xl border border-orange-200 p-6 hover:shadow-2xl transition-all duration-300 cursor-pointer group" onclick="selectStudentType('school')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-orange-600 to-amber-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-school text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">School Students</h3>
+                <p class="text-gray-600 mb-4 leading-relaxed text-sm">For students from Class 1 to Class 12 in primary, middle, and secondary education.</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Primary (1st-5th Class)</li>
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Secondary (6th-10th Class)</li>
+                  <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>Senior Secondary (11th-12th)</li>
+                </ul>
+                <button class="bg-gradient-to-r from-orange-600 to-amber-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-700 hover:to-amber-700 transition-colors w-full text-sm">
+                  Select School
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -428,6 +502,312 @@
         </div>
       </div>
     </div>
+
+    <!-- Course Customization Modal -->
+    <div id="courseCustomizationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-cog mr-3"></i>
+              Customize Course Details
+            </h3>
+            <button onclick="closeCourseCustomizationModal()" class="text-white hover:text-gray-200 transition-colors">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          <p class="text-blue-100 mt-2 text-sm">Personalize your course information for hall ticket generation</p>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6">
+          <form id="courseCustomizationForm" onsubmit="saveCourseCustomization(event)">
+            <div class="space-y-6">
+              <!-- Course Basic Information -->
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <i class="fas fa-info-circle mr-2 text-blue-600"></i>Course Information
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Course Name *</label>
+                    <input type="text" id="customCourseName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Bachelor of Arts">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Course Code</label>
+                    <input type="text" id="customCourseCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., BA, BSc, BCom">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Specialization/Stream -->
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <i class="fas fa-graduation-cap mr-2 text-indigo-600"></i>Specialization & Stream
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Stream/Specialization</label>
+                    <select id="customStream" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">Select Stream...</option>
+                      <option value="arts">Arts/Humanities</option>
+                      <option value="science">Science</option>
+                      <option value="commerce">Commerce</option>
+                      <option value="computer-applications">Computer Applications</option>
+                      <option value="business-administration">Business Administration</option>
+                      <option value="management">Management</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subject Specialization</label>
+                    <input type="text" id="customSpecialization" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., English Literature, Mathematics, Accounting">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Institution Details -->
+              <div class="bg-green-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <i class="fas fa-university mr-2 text-green-600"></i>Institution Information
+                </h4>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">College/University Name</label>
+                    <input type="text" id="customInstitutionName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Government First Grade College">
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Affiliated University</label>
+                      <input type="text" id="customUniversity" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Bangalore University">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Course Duration</label>
+                      <select id="customDuration" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Duration...</option>
+                        <option value="3-years">3 Years</option>
+                        <option value="4-years">4 Years</option>
+                        <option value="2-years">2 Years (PG)</option>
+                        <option value="1-year">1 Year</option>
+                        <option value="6-months">6 Months</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Additional Options -->
+              <div class="bg-purple-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <i class="fas fa-sliders-h mr-2 text-purple-600"></i>Additional Options
+                </h4>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <input type="checkbox" id="isHonours" class="rounded mr-2">
+                    <label for="isHonours" class="text-sm text-gray-700">Honours Course</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" id="isDistance" class="rounded mr-2">
+                    <label for="isDistance" class="text-sm text-gray-700">Distance Learning/Correspondence</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" id="isPartTime" class="rounded mr-2">
+                    <label for="isPartTime" class="text-sm text-gray-700">Part-time Course</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex space-x-3 mt-6">
+              <button type="button" onclick="closeCourseCustomizationModal()" class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+                Cancel
+              </button>
+              <button type="submit" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700">
+                <i class="fas fa-save mr-2"></i>Save Customization
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Student Section -->
+    <section id="general" class="section hidden">
+      <div class="py-12 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">General Academic Program</h2>
+            <p class="text-xl text-gray-600 mb-8">Select your academic year and class</p>
+          </div>
+          
+          <!-- Course Selection -->
+          <div class="max-w-md mx-auto mb-8">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Course/Program</label>
+            <select id="generalCourseSelect" onchange="handleGeneralCourseSelection()" class="w-full px-6 py-4 rounded-xl text-lg border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200">
+              <option value="">Choose your course...</option>
+              <option value="ba">Bachelor of Arts (BA)</option>
+              <option value="bsc">Bachelor of Science (BSc)</option>
+              <option value="bcom">Bachelor of Commerce (BCom)</option>
+              <option value="bca">Bachelor of Computer Applications (BCA)</option>
+              <option value="bba">Bachelor of Business Administration (BBA)</option>
+              <option value="ma">Master of Arts (MA)</option>
+              <option value="msc">Master of Science (MSc)</option>
+              <option value="mcom">Master of Commerce (MCom)</option>
+              <option value="mca">Master of Computer Applications (MCA)</option>
+              <option value="mba">Master of Business Administration (MBA)</option>
+              <option value="diploma">Diploma Course</option>
+              <option value="certificate">Certificate Course</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <!-- Selected Course Display -->
+          <div id="selectedCourseDisplay" class="mt-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 hidden">
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+              <div class="flex items-center gap-3 min-w-0">
+                <i id="selectedCourseIcon" class="fas fa-graduation-cap text-2xl text-green-600 flex-shrink-0"></i>
+                <div class="text-left min-w-0">
+                  <p id="selectedCourseName" class="font-semibold text-gray-800 truncate">Selected Course</p>
+                  <p id="selectedCourseDescription" class="text-sm text-gray-600">General Academic Program</p>
+                </div>
+              </div>
+              <div class="mt-3 sm:mt-0 flex items-center gap-3">
+                <button onclick="openCourseCustomizationModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-cog mr-2"></i>Customize
+                </button>
+                <button onclick="proceedToGeneralYearSelection()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                  Continue
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Year Selection Cards for General -->
+          <div id="generalYearCards" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 hidden">
+            <!-- Year cards will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- School Students Section -->
+    <section id="school" class="section hidden">
+      <div class="py-12 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">School Education</h2>
+            <p class="text-xl text-gray-600 mb-8">Select your class level for school examinations</p>
+          </div>
+          
+          <!-- Class Level Selection -->
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Primary Classes (1-5) -->
+            <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl shadow-lg border border-pink-200 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectSchoolLevel('primary')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-pink-500 to-rose-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-child text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Primary School</h3>
+                <p class="text-gray-600 mb-4 text-sm">Classes 1st to 5th</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li>• Basic subjects</li>
+                  <li>• Foundational learning</li>
+                  <li>• Simple assessments</li>
+                </ul>
+                <button class="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-colors w-full text-sm">
+                  Select Primary
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Middle Classes (6-8) -->
+            <div class="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl shadow-lg border border-cyan-200 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectSchoolLevel('middle')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-user-graduate text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Middle School</h3>
+                <p class="text-gray-600 mb-4 text-sm">Classes 6th to 8th</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li>• Core subjects</li>
+                  <li>• Skill development</li>
+                  <li>• Regular assessments</li>
+                </ul>
+                <button class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-600 transition-colors w-full text-sm">
+                  Select Middle
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Secondary Classes (9-10) -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-lg border border-indigo-200 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectSchoolLevel('secondary')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-book text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Secondary</h3>
+                <p class="text-gray-600 mb-4 text-sm">Classes 9th to 10th</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li>• Board preparation</li>
+                  <li>• Subject specialization</li>
+                  <li>• 10th board exams</li>
+                </ul>
+                <button class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-600 transition-colors w-full text-sm">
+                  Select Secondary
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Senior Secondary Classes (11-12) -->
+            <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl shadow-lg border border-emerald-200 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group" onclick="selectSchoolLevel('senior')">
+              <div class="text-center">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-certificate text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Senior Secondary</h3>
+                <p class="text-gray-600 mb-4 text-sm">Classes 11th to 12th</p>
+                <ul class="text-xs text-gray-600 space-y-1 mb-4 text-left">
+                  <li>• Stream selection</li>
+                  <li>• Advanced subjects</li>
+                  <li>• 12th board exams</li>
+                </ul>
+                <button class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-600 transition-colors w-full text-sm">
+                  Select Senior
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Selected School Level Display -->
+          <div id="selectedSchoolLevelDisplay" class="mt-8 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 hidden">
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+              <div class="flex items-center gap-3 min-w-0">
+                <i id="selectedSchoolIcon" class="fas fa-school text-2xl text-orange-600 flex-shrink-0"></i>
+                <div class="text-left min-w-0">
+                  <p id="selectedSchoolLevelName" class="font-semibold text-gray-800 truncate">Selected Level</p>
+                  <p id="selectedSchoolDescription" class="text-sm text-gray-600">School Education</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Class Selection for Selected Level -->
+          <div id="schoolClassSelection" class="mt-8 hidden">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 text-center">Select Your Class</h3>
+            <div id="schoolClassCards" class="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <!-- Class cards will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Year Selection Section -->
     <section id="yearSelection" class="section hidden">
@@ -997,8 +1377,7 @@
           </div>
           <div>
             <h4 class="text-lg font-semibold mb-4">Contact</h4>
-            <p class="text-gray-400 mb-2">Email: <a href="mailto:arshadpatel1431@gmail.com" class="hover:text-white">arshadpatel1431@gmail.com</a></p>
-            <p class="text-gray-400 mb-4">Phone: <a href="tel:+916361960662" class="hover:text-white">+91-6361960662</a></p>
+            <p class="text-gray-400 mb-4">Email: <a href="mailto:arshadpatel1431@gmail.com" class="hover:text-white">arshadpatel1431@gmail.com</a></p>
             <div class="flex space-x-4">
               <a href="#" class="text-gray-400 hover:text-white transition-colors">
                 <i class="fab fa-facebook text-xl"></i>
@@ -1054,7 +1433,7 @@
         <div class="p-4 text-sm text-gray-500 border-t bg-gray-50">
           <div class="max-w-3xl mx-auto text-center">
             <div class="mb-1">EduConnect — Hall Ticket Generator</div>
-            <div>Questions or feedback? <a href="mailto:arshadpatel1431@gmail.com" class="text-blue-600">arshadpatel1431@gmail.com</a> · <a href="tel:+916361960662" class="text-blue-600">+91 6361960662</a></div>
+            <div>Questions or feedback? <a href="mailto:arshadpatel1431@gmail.com" class="text-blue-600">arshadpatel1431@gmail.com</a></div>
             <div class="mt-2 text-xs"><span class="maximus-credit">Created by MAXIMUS Consultancy service</span></div>
           </div>
         </div>
@@ -1173,7 +1552,7 @@
     <footer class="w-full bg-white border-t mt-8">
       <div class="container mx-auto px-4 py-6 text-center text-sm text-gray-600">
         <div>EduConnect — Lightweight Hall Ticket Generator</div>
-  <div class="mt-1">Made with jsPDF · <a href="#" class="text-blue-600">Documentation</a> · <a href="mailto:arshadpatel1431@gmail.com" class="text-blue-600">Contact</a> · <a href="tel:+916361960662" class="text-blue-600">+91 6361960662</a></div>
+  <div class="mt-1">Made with jsPDF · <a href="#" class="text-blue-600">Documentation</a> · <a href="mailto:arshadpatel1431@gmail.com" class="text-blue-600">Contact</a></div>
   <div class="mt-2"><span class="maximus-credit">Created by MAXIMUS Consultancy service</span></div>
       </div>
     </footer>

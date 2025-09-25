@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Setup Diagnostic - EduConnect</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .diagnostic-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .loading { opacity: 0.6; pointer-events: none; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .user-info { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Account Setup Diagnostic Tool</h1>
+    <p><strong>Email:</strong> arshadpatel1431@gmail.com</p>
+    
+    <!-- Step 1: Environment Check -->
+    <div class="diagnostic-section" id="envCheck">
+        <h2>1. Environment Configuration Check</h2>
+        <p>Checking server configuration and database connectivity...</p>
+        <button onclick="checkEnvironment()">Check Environment</button>
+        <div id="envResult"></div>
+    </div>
+    
+    <!-- Step 2: Database User Check -->
+    <div class="diagnostic-section" id="userCheck">
+        <h2>2. User Database Record Check</h2>
+        <p>Verifying if your user profile exists in the database...</p>
+        <button onclick="checkUserProfile()">Check User Profile</button>
+        <div id="userResult"></div>
+    </div>
+    
+    <!-- Step 3: Permissions Test -->
+    <div class="diagnostic-section" id="permCheck">
+        <h2>3. Database Permissions Test</h2>
+        <p>Testing database read/write permissions...</p>
+        <button onclick="testPermissions()">Test Permissions</button>
+        <div id="permResult"></div>
+    </div>
+    
+    <!-- Step 4: Fix User Profile -->
+    <div class="diagnostic-section" id="fixSection">
+        <h2>4. Account Fix</h2>
+        <p>If issues are found, this will attempt to fix your account setup.</p>
+        <div class="user-info">
+            <label>Your Email: <input type="email" id="userEmail" value="arshadpatel1431@gmail.com" style="width: 300px; padding: 5px;"></label><br><br>
+            <label>Your Name: <input type="text" id="userName" value="Arshad Patel" style="width: 300px; padding: 5px;"></label><br><br>
+            <label>Institution: <input type="text" id="userInstitution" value="Your Institution" style="width: 300px; padding: 5px;"></label><br><br>
+            <label>Role: 
+                <select id="userRole" style="padding: 5px;">
+                    <option value="teacher">Teacher</option>
+                    <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </label>
+        </div>
+        <button onclick="fixUserAccount()" style="background: #28a745;">Fix My Account</button>
+        <div id="fixResult"></div>
+    </div>
+    
+    <!-- Step 5: Test Login -->
+    <div class="diagnostic-section" id="loginTest">
+        <h2>5. Login Test</h2>
+        <p>Test your login after fixes are applied.</p>
+        <div style="margin: 10px 0;">
+            <label>Password: <input type="password" id="testPassword" placeholder="Enter your password" style="width: 200px; padding: 5px;"></label>
+            <button onclick="testLogin()">Test Login</button>
+        </div>
+        <div id="loginResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        
+        // Check environment configuration
+        async function checkEnvironment() {
+            const button = event.target;
+            const result = document.getElementById('envResult');
+            
+            button.classList.add('loading');
+            result.innerHTML = '<p>Checking server configuration...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/me`);
+                const isServerRunning = response.status === 401 || response.status === 200;
+                
+                if (isServerRunning) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Server Status: Running</h3>
+                            <p>API server is running and responding normally.</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Server Status: Issues Detected</h3>
+                            <p>Server returned status: ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>🔴 Server Status: Not Running</h3>
+                        <p>Cannot connect to server. Please start it with: <code>npm start</code></p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+        
+        // Check user profile in database
+        async function checkUserProfile() {
+            const button = event.target;
+            const result = document.getElementById('userResult');
+            const email = document.getElementById('userEmail').value;
+            
+            button.classList.add('loading');
+            result.innerHTML = '<p>Checking user profile...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/check-user/${encodeURIComponent(email)}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.exists) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h3>✅ User Profile Found</h3>
+                            <pre>${JSON.stringify(data.data.user, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="warning">
+                            <h3>⚠️ User Profile Missing</h3>
+                            <p>Your email was not found in the database. This is likely the cause of your login issues.</p>
+                            <p>Use the "Fix My Account" button below to create your profile.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Check Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+        
+        // Test database permissions
+        async function testPermissions() {
+            const button = event.target;
+            const result = document.getElementById('permResult');
+            
+            button.classList.add('loading');
+            result.innerHTML = '<p>Testing permissions...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/test-permissions`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Database Permissions OK</h3>
+                            <p>Database read/write permissions are working correctly.</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Permission Issues</h3>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Permission Test Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+        
+        // Fix user account
+        async function fixUserAccount() {
+            const button = event.target;
+            const result = document.getElementById('fixResult');
+            
+            const userData = {
+                email: document.getElementById('userEmail').value,
+                name: document.getElementById('userName').value,
+                institution: document.getElementById('userInstitution').value,
+                role: document.getElementById('userRole').value
+            };
+            
+            button.classList.add('loading');
+            result.innerHTML = '<p>Fixing your account...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/fix-user-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Account Fixed Successfully!</h3>
+                            <p>Your user profile has been created/updated in the database.</p>
+                            <p>You should now be able to log in normally.</p>
+                            <pre>${JSON.stringify(data.data.user, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Fix Failed</h3>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Fix Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+        
+        // Test login
+        async function testLogin() {
+            const button = event.target;
+            const result = document.getElementById('loginResult');
+            
+            const loginData = {
+                email: document.getElementById('userEmail').value,
+                password: document.getElementById('testPassword').value
+            };
+            
+            if (!loginData.password) {
+                result.innerHTML = '<div class="warning">Please enter your password</div>';
+                return;
+            }
+            
+            button.classList.add('loading');
+            result.innerHTML = '<p>Testing login...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/direct-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h3>🎉 Login Successful!</h3>
+                            <p>Your account is now working correctly!</p>
+                            <p><strong>Next step:</strong> Go back to the main website and log in normally.</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Login Failed</h3>
+                            <p>${data.message}</p>
+                            <p>Please check your password or contact support.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Login Test Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+        
+        // Auto-check environment on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkEnvironment();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
